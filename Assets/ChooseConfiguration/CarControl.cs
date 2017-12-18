@@ -9,20 +9,35 @@ public class CarControl : MonoBehaviour {
     public GameObject prev = null;
     public float angle_velocity = 100.0f;
     public GameObject cameraObj;
-    
+    public Color initial_color;
+
     bool fix = false;
     int layerMask = 1 << 8;
     bool in_collision = false;
-
     Camera cameraComp;
-    MeshRenderer rendererComp;
-    Color initial_color;
 
     // Use this for initialization
     void Start () {
         cameraComp = (Camera)cameraObj.GetComponent(typeof(Camera));
-        rendererComp = ((MeshRenderer)GetComponent(typeof(MeshRenderer)));
-        initial_color = rendererComp.material.color;
+        changeColor(initial_color);
+        if (!active)
+            setVisible(false);
+    }
+
+    void changeColor(Color c)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            r.material.color = c; 
+        }
+    }
+
+    void setVisible(bool visible)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+            r.enabled = visible;
     }
 
     void teleportToCursor()
@@ -32,7 +47,7 @@ public class CarControl : MonoBehaviour {
         if (Physics.Raycast(ray, out rh, Mathf.Infinity, layerMask))
         {
             Vector3 pt = rh.point;
-            pt.y += transform.localScale.y / 2;
+            //pt.y += GetComponent<Collider>().bounds.size.y/2;
             transform.position = pt;
         }
     }
@@ -51,20 +66,21 @@ public class CarControl : MonoBehaviour {
         if (prev != null)
         {
             active = false;
-            rendererComp.enabled = false; // Set invisible
+            setVisible(false);
             CarControl cc = (CarControl)prev.GetComponent(typeof(CarControl));
             cc.Active();
         }
     }
 
     private void OnTriggerEnter(Collider other) { in_collision = true; }
+    private void OnTriggerStay(Collider other) { in_collision = true; }
     private void OnTriggerExit(Collider other) { in_collision = false; }
 
     bool active_next_frame = false;
     public void Active()
     {
         active_next_frame = true;
-        rendererComp.enabled = true; // Set visible
+        setVisible(true);
         fix = false;
     }
 
@@ -92,14 +108,14 @@ public class CarControl : MonoBehaviour {
             transform.Rotate(Vector3.up, angle_velocity * d);
 
             if (in_collision)
-                rendererComp.material.color = Color.red;
+                changeColor(Color.red);
             else
-                rendererComp.material.color = Color.green;
+                changeColor(Color.green);
 
             if (!in_collision && Input.GetMouseButtonDown(0))
             {
                 fix = true;
-                rendererComp.material.color = initial_color;
+                changeColor(initial_color);
                 switchToNext();
             }
         }
