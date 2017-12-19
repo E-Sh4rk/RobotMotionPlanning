@@ -219,9 +219,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CarController.cs" />
     <Compile Include="Assets\ChooseConfiguration\CameraControl.cs" />
     <Compile Include="Assets\ChooseConfiguration\CarControl.cs" />
-    <Compile Include="Assets\MoveCar\CarController.cs" />
+    <Compile Include="Assets\MoveCar\CarAI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Car\CarGuidelines.txt" />
