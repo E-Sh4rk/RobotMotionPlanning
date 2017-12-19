@@ -38,7 +38,6 @@ GameObject:
   - component: {fileID: 4003577386933534}
   - component: {fileID: 65863158211017960}
   - component: {fileID: 54700387037332516}
-  - component: {fileID: 114266869159321760}
   m_Layer: 0
   m_Name: SkyCar
   m_TagString: Untagged
@@ -934,20 +933,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.358869, y: 1.4935617, z: 4.5409107}
   m_Center: {x: -0.0006568432, y: 0.72337246, z: -0.1394186}
---- !u!114 &114266869159321760
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1068589582261820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 423b510a30086a7408a9f25debb918f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  active: 0
-  next: {fileID: 0}
-  prev: {fileID: 0}
-  angle_velocity: 100
-  cameraObj: {fileID: 0}
-  initial_color: {r: 1, g: 1, b: 1, a: 0}
