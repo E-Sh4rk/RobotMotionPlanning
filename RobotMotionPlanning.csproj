@@ -231,6 +231,7 @@
     <Compile Include="Assets\Car\Scripts\WheelEffects.cs" />
     <Compile Include="Assets\ChooseConfiguration\CameraControl.cs" />
     <Compile Include="Assets\ChooseConfiguration\CarControl.cs" />
+    <Compile Include="Assets\MoveCar\CarController.cs" />
     <Compile Include="Assets\Utility\ActivateTrigger.cs" />
     <Compile Include="Assets\Utility\AlphaButtonClickMask.cs" />
     <Compile Include="Assets\Utility\AutoMobileShaderSwitch.cs" />
