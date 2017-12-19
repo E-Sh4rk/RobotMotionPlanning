@@ -15,29 +15,55 @@ public class CarController : MonoBehaviour {
     {
         Vector3 pos = pivotPoint.transform.position;
         transform.eulerAngles = Vector3.zero;
-        setPosition(pos);
+        setPosition(new Vector2(pos.x, pos.z));
         transform.RotateAround(pos, Vector3.up, angle);
     }
-    public void setPosition(Vector3 pos)
+    public void setPosition(Vector2 pos)
     {
-        transform.position = pos - pivotPoint.transform.localPosition;
+        Vector3 p = new Vector3(pos.x, 0, pos.y);
+        transform.position = p - pivotPoint.transform.localPosition;
     }
-    public void setConfiguration(Vector3 pos, float angle)
+    public void setConfiguration(Vector3 conf)
     {
-        setPosition(pos); setAngle(angle);
+        setPosition(new Vector2(conf.x, conf.y)); setAngle(conf.z);
     }
 	
     public float getAngle()
     {
         return pivotPoint.transform.eulerAngles.y;
     }
-    public Vector3 getPosition()
+    public Vector2 getPosition()
     {
-        return pivotPoint.transform.position;
+        return new Vector2(pivotPoint.transform.position.x, pivotPoint.transform.position.z);
+    }
+    public Vector3 getConfiguration()
+    {
+        Vector2 pos = getPosition();
+        return new Vector3(pos.x, pos.y, getAngle());
+    }
+
+    Vector3? target = null;
+    float remainingTime = 0f;
+    public void MoveStraigthTo(Vector3 newConf, float time)
+    {
+        target = newConf;
+        remainingTime = time;
     }
 
 	// Update is called once per frame
 	void Update () {
-		
+		if (target.HasValue)
+        {
+            remainingTime -= Time.fixedTime;
+            if (remainingTime < 0)
+                remainingTime = 0;
+
+            Vector3 current = getConfiguration();
+            // TODO : New configuration
+            // TODO : Wheels rotation / inclinaison
+
+            if (current == target)
+                target = null;
+        }
 	}
 }

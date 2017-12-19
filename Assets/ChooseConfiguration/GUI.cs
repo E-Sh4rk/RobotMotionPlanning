@@ -5,10 +5,8 @@ using UnityEngine.SceneManagement;
 
 public static class ConfigInfos
 {
-    public static Vector3 initialPos;
-    public static float initialAngle;
-    public static Vector3 finalPos;
-    public static float finalAngle;
+    public static Vector3 initialConf;
+    public static Vector3 finalConf;
 }
 
 
@@ -23,10 +21,9 @@ public class GUI : MonoBehaviour {
         {
              if (UnityEngine.GUI.Button(new Rect(Screen.width/2-50, 25, 100, 25), "Go !"))
              {
-                ConfigInfos.initialPos = firstCar.GetComponent<CarController>().getPosition();
-                ConfigInfos.initialAngle = firstCar.GetComponent<CarController>().getAngle();
-                ConfigInfos.finalPos = lastCar.GetComponent<CarController>().getPosition();
-                ConfigInfos.finalAngle = lastCar.GetComponent<CarController>().getAngle();
+                ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
+
                 SceneManager.LoadScene(1);
             }
         }

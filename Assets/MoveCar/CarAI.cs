@@ -9,7 +9,8 @@ public class CarAI : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         controller = GetComponent<CarController>();
-        controller.setConfiguration(ConfigInfos.initialPos, ConfigInfos.initialAngle);
+        controller.setConfiguration(ConfigInfos.initialConf);
+        controller.MoveStraigthTo(ConfigInfos.finalConf, 5f);
 	}
 
 	// Update is called once per frame
