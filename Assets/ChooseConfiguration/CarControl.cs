@@ -28,9 +28,7 @@ public class CarControl : MonoBehaviour {
     {
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
-        {
             r.material.color = c; 
-        }
     }
 
     void setVisible(bool visible)

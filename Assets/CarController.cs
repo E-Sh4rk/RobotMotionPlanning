@@ -8,8 +8,7 @@ public class CarController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        setPosition(Vector3.zero);
-        setAngle(90);
+
     }
 
     public void setAngle(float angle)
