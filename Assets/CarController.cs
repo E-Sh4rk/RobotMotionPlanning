@@ -21,7 +21,7 @@ public class CarController : MonoBehaviour {
     public void setPosition(Vector2 pos)
     {
         Vector3 p = new Vector3(pos.x, 0, pos.y);
-        transform.position = p - pivotPoint.transform.localPosition;
+        transform.position = p - (pivotPoint.transform.position - transform.position);
     }
     public void setConfiguration(Vector3 conf)
     {
@@ -54,13 +54,16 @@ public class CarController : MonoBehaviour {
 	void Update () {
 		if (target.HasValue)
         {
-            remainingTime -= Time.fixedTime;
+            Vector3 current = getConfiguration();
+            Vector3 diff = target.Value - current;
+            Vector3 new_conf = target.Value;
+            if (Time.fixedDeltaTime < remainingTime)
+                new_conf = current + diff * (Time.fixedDeltaTime/remainingTime);
+            setConfiguration(new_conf);
+
+            remainingTime -= Time.fixedDeltaTime;
             if (remainingTime < 0)
                 remainingTime = 0;
-
-            Vector3 current = getConfiguration();
-            // TODO : New configuration
-            // TODO : Wheels rotation / inclinaison
 
             if (current == target)
                 target = null;
