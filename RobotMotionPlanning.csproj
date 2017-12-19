@@ -219,43 +219,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Car\Scripts\BrakeLight.cs" />
-    <Compile Include="Assets\Car\Scripts\CarAIControl.cs" />
-    <Compile Include="Assets\Car\Scripts\CarAudio.cs" />
-    <Compile Include="Assets\Car\Scripts\CarController.cs" />
-    <Compile Include="Assets\Car\Scripts\CarSelfRighting.cs" />
-    <Compile Include="Assets\Car\Scripts\CarUserControl.cs" />
-    <Compile Include="Assets\Car\Scripts\Mudguard.cs" />
-    <Compile Include="Assets\Car\Scripts\SkidTrail.cs" />
-    <Compile Include="Assets\Car\Scripts\Suspension.cs" />
-    <Compile Include="Assets\Car\Scripts\WheelEffects.cs" />
     <Compile Include="Assets\ChooseConfiguration\CameraControl.cs" />
     <Compile Include="Assets\ChooseConfiguration\CarControl.cs" />
     <Compile Include="Assets\MoveCar\CarController.cs" />
-    <Compile Include="Assets\Utility\ActivateTrigger.cs" />
-    <Compile Include="Assets\Utility\AlphaButtonClickMask.cs" />
-    <Compile Include="Assets\Utility\AutoMobileShaderSwitch.cs" />
-    <Compile Include="Assets\Utility\AutoMoveAndRotate.cs" />
-    <Compile Include="Assets\Utility\CameraRefocus.cs" />
-    <Compile Include="Assets\Utility\CurveControlledBob.cs" />
-    <Compile Include="Assets\Utility\DragRigidbody.cs" />
-    <Compile Include="Assets\Utility\DynamicShadowSettings.cs" />
-    <Compile Include="Assets\Utility\EventSystemChecker.cs" />
-    <Compile Include="Assets\Utility\FollowTarget.cs" />
-    <Compile Include="Assets\Utility\ForcedReset.cs" />
-    <Compile Include="Assets\Utility\FOVKick.cs" />
-    <Compile Include="Assets\Utility\FPSCounter.cs" />
-    <Compile Include="Assets\Utility\LerpControlledBob.cs" />
-    <Compile Include="Assets\Utility\ObjectResetter.cs" />
-    <Compile Include="Assets\Utility\ParticleSystemDestroyer.cs" />
-    <Compile Include="Assets\Utility\PlatformSpecificContent.cs" />
-    <Compile Include="Assets\Utility\SimpleActivatorMenu.cs" />
-    <Compile Include="Assets\Utility\SimpleMouseRotator.cs" />
-    <Compile Include="Assets\Utility\SmoothFollow.cs" />
-    <Compile Include="Assets\Utility\TimedObjectActivator.cs" />
-    <Compile Include="Assets\Utility\TimedObjectDestructor.cs" />
-    <Compile Include="Assets\Utility\WaypointCircuit.cs" />
-    <Compile Include="Assets\Utility\WaypointProgressTracker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Car\CarGuidelines.txt" />
