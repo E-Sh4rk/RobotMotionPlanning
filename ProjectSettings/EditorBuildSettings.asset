@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/ChooseConfiguration/ChooseConfiguration.unity
+    guid: fe85116582862ee4a8a9811994b43287
+  - enabled: 1
+    path: Assets/MoveCar/MoveCar.unity
+    guid: 5871e907c88dbcb4487dd1babdac472d

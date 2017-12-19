@@ -89,7 +89,8 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000002, guid: ec642e0b2db7ee24680de42eeb2817d7,
+    type: 2}
   m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
@@ -125,6 +126,7 @@ GameObject:
   - component: {fileID: 1094008106}
   - component: {fileID: 1094008105}
   - component: {fileID: 1094008109}
+  - component: {fileID: 1094008110}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -206,6 +208,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: 10
+--- !u!114 &1094008110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1094008104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b5f1793614a17f44a9e50eefb651ecf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firstCar: {fileID: 1195360909}
+  lastCar: {fileID: 1773358752}
 --- !u!1001 &1195360908
 Prefab:
   m_ObjectHideFlags: 0

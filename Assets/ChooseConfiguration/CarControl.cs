@@ -84,6 +84,8 @@ public class CarControl : MonoBehaviour {
         fix = false;
     }
 
+    public bool IsFixed() { return fix; }
+
     // Update is called once per frame
     void Update () {
         if (active_next_frame)
