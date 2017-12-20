@@ -30,17 +30,17 @@ public class OnDemandPhysics : MonoBehaviour {
         return Physics.CheckBox(boxCenter, boxHalfExtents, boxRotation, layerMask, QueryTriggerInteraction.Collide);
     }
 
-    public bool configurationStraightReachable(Vector3 target)
+    public bool configurationStraightReachable(Vector3 init, Vector3 target)
     {
-        Vector3 init = control.getConfiguration();
+        Vector3 conf_save = control.getConfiguration();
 
         Vector3 diff = target - init;
-        int nb_steps = (int)(diff.magnitude*resolution)+1;
+        int nb_steps = (int)(diff.magnitude * resolution) + 1;
 
         bool collision = false;
         for (int i = 0; i <= nb_steps; i++)
         {
-            control.setConfiguration(init + diff* ((float)i / nb_steps));
+            control.setConfiguration(init + diff * ((float)i / nb_steps));
             if (inCollisionWithObstacles())
             {
                 collision = true;
@@ -48,8 +48,13 @@ public class OnDemandPhysics : MonoBehaviour {
             }
         }
 
-        control.setConfiguration(init);
+        control.setConfiguration(conf_save);
         return !collision;
+    }
+
+    public bool configurationStraightReachable(Vector3 target)
+    {
+        return configurationStraightReachable(control.getConfiguration(), target);
     }
 	
 	// Update is called once per frame
