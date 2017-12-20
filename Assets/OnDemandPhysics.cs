@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OnDemandPhysics : MonoBehaviour {
 
+    public float resolution = 1f;
+
     BoxCollider coll;
     CarController control;
     int layerMask = 1 << 9;
@@ -28,14 +30,26 @@ public class OnDemandPhysics : MonoBehaviour {
         return Physics.CheckBox(boxCenter, boxHalfExtents, boxRotation, layerMask, QueryTriggerInteraction.Collide);
     }
 
-    public bool configurationStraightReachable(Vector3 cfg)
+    public bool configurationStraightReachable(Vector3 target)
     {
         Vector3 init = control.getConfiguration();
 
-        // TODO
+        Vector3 diff = target - init;
+        int nb_steps = (int)(diff.magnitude*resolution)+1;
+
+        bool collision = false;
+        for (int i = 0; i <= nb_steps; i++)
+        {
+            control.setConfiguration(init + diff* ((float)i / nb_steps));
+            if (inCollisionWithObstacles())
+            {
+                collision = true;
+                break;
+            }
+        }
 
         control.setConfiguration(init);
-        return false;
+        return !collision;
     }
 	
 	// Update is called once per frame
