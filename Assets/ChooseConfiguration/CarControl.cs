@@ -15,27 +15,15 @@ public class CarControl : MonoBehaviour {
     int layerMask = 1 << 8;
     bool in_collision = false;
     Camera cameraComp;
+    CarController control;
 
     // Use this for initialization
     void Start () {
         cameraComp = (Camera)cameraObj.GetComponent(typeof(Camera));
-        changeColor(initial_color);
+        control = GetComponent<CarController>();
+        control.changeColor(initial_color);
         if (!active)
-            setVisible(false);
-    }
-
-    void changeColor(Color c)
-    {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in renderers)
-            r.material.color = c; 
-    }
-
-    void setVisible(bool visible)
-    {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in renderers)
-            r.enabled = visible;
+            control.setVisible(false);
     }
 
     void teleportToCursor()
@@ -64,7 +52,7 @@ public class CarControl : MonoBehaviour {
         if (prev != null)
         {
             active = false;
-            setVisible(false);
+            control.setVisible(false);
             CarControl cc = (CarControl)prev.GetComponent(typeof(CarControl));
             cc.Active();
         }
@@ -78,7 +66,7 @@ public class CarControl : MonoBehaviour {
     public void Active()
     {
         active_next_frame = true;
-        setVisible(true);
+        control.setVisible(true);
         fix = false;
     }
 
@@ -108,14 +96,14 @@ public class CarControl : MonoBehaviour {
             transform.Rotate(Vector3.up, angle_velocity * d);
 
             if (in_collision)
-                changeColor(Color.red);
+                control.changeColor(Color.red);
             else
-                changeColor(Color.green);
+                control.changeColor(Color.green);
 
             if (!in_collision && Input.GetMouseButtonDown(0))
             {
                 fix = true;
-                changeColor(initial_color);
+                control.changeColor(initial_color);
                 switchToNext();
             }
         }

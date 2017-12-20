@@ -11,6 +11,7 @@ public class CarController : MonoBehaviour {
 
     }
 
+    // CONFIGURATIONS
     public void setAngle(float angle)
     {
         Vector3 pos = pivotPoint.transform.position;
@@ -42,6 +43,22 @@ public class CarController : MonoBehaviour {
         return new Vector3(pos.x, pos.y, getAngle());
     }
 
+    // DISPLAY
+    public void changeColor(Color c)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+            r.material.color = c;
+    }
+
+    public void setVisible(bool visible)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+            r.enabled = visible;
+    }
+
+    // MOVEMENTS
     Vector3? target = null;
     float remainingTime = 0f;
     public void MoveStraigthTo(Vector3 newConf, float time)
