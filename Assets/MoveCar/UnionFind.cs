@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 public class UnionFind<T>
 {
@@ -73,5 +74,21 @@ public class UnionFind<T>
     public SetElement UnionValues(T v1, T v2)
     {
         return Union(Find(v1),Find(v2));
+    }
+
+    override public string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        HashSet<T> already_printed = new HashSet<T>();
+        foreach (T v in dict.Keys)
+        {
+            SetElement r = Find(v);
+            if (!already_printed.Contains(r.value))
+            {
+                sb.Append(r.value.ToString() + " : " + r.size + "\n");
+                already_printed.Add(r.value);
+            }
+        }
+        return sb.ToString();
     }
 }

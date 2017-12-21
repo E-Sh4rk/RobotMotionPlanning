@@ -43,6 +43,11 @@ public class CarController : MonoBehaviour {
         return new Vector3(pos.x, pos.y, getAngle());
     }
 
+    public Vector3 spatialOfConfiguration(Vector3 conf)
+    {
+        return new Vector3(conf.x, 0, conf.y);
+    }
+
     // DISPLAY
     public void changeColor(Color c)
     {
@@ -68,7 +73,7 @@ public class CarController : MonoBehaviour {
     }
     public void MoveStraigthTo(Vector3 newConf)
     {
-        MoveStraigthTo(newConf, (getConfiguration() - newConf).magnitude * 0.1f);
+        MoveStraigthTo(newConf, spatialOfConfiguration(getConfiguration() - newConf).magnitude * 0.1f);
     }
     public bool MoveFinished()
     {
@@ -90,7 +95,7 @@ public class CarController : MonoBehaviour {
             if (remainingTime < 0)
                 remainingTime = 0;
 
-            if (current == target)
+            if (new_conf == target.Value)
                 target = null;
         }
 	}

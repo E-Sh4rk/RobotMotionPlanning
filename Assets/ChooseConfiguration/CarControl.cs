@@ -95,6 +95,7 @@ public class CarControl : MonoBehaviour {
             float d = Input.GetAxis("Mouse ScrollWheel");
             transform.Rotate(Vector3.up, angle_velocity * d);
 
+            // in_collision = GetComponent<OnDemandPhysics>().inCollisionWithObstacles();
             if (in_collision)
                 control.changeColor(Color.red);
             else

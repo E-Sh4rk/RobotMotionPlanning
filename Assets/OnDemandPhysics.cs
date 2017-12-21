@@ -34,7 +34,7 @@ public class OnDemandPhysics : MonoBehaviour {
     {
         Vector3 boxHalfExtents = multiplyComponents(coll.size / 2, transform.localScale);
         Quaternion boxRotation = transform.rotation;
-        Vector3 boxCenter = multiplyComponents(coll.center,transform.localScale) + transform.position;
+        Vector3 boxCenter = boxRotation * multiplyComponents(coll.center,transform.localScale) + transform.position;
 
         return Physics.CheckBox(boxCenter, boxHalfExtents, boxRotation, layerMask, QueryTriggerInteraction.Collide);
     }

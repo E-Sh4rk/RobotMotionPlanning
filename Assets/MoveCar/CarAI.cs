@@ -16,7 +16,7 @@ public class CarAI : MonoBehaviour {
         controller = GetComponent<CarController>();
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
-        bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.y));
+        bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
 
         controller.setConfiguration(ConfigInfos.initialConf);
         List<Vector3> path = FindPathMonteCarlo();
@@ -107,6 +107,8 @@ public class CarAI : MonoBehaviour {
                         {
                             linked = phy.configurationsStraightReachable(v, pt);
                         }
+                        if (linked)
+                            Debug.DrawLine(controller.spatialOfConfiguration(v), controller.spatialOfConfiguration(pt), Color.red, Mathf.Infinity);
                         dico.Add(new Link(v, pt), linked ? (v-pt).magnitude : Mathf.Infinity);
                     }
                     pts.Add(pt);
