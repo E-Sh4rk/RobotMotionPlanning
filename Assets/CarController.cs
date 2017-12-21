@@ -66,26 +66,39 @@ public class CarController : MonoBehaviour {
     // MOVEMENTS
     Vector3? target = null;
     float remainingTime = 0f;
-    public void MoveStraigthTo(Vector3 newConf, float time)
+    bool clockwise = false;
+    public void MoveStraigthTo(Vector3 newConf, bool clockwise, float time)
     {
         target = newConf;
+        this.clockwise = clockwise;
         remainingTime = time;
     }
-    public void MoveStraigthTo(Vector3 newConf)
+    public void MoveStraigthTo(Vector3 newConf, bool clockwise)
     {
-        MoveStraigthTo(newConf, spatialOfConfiguration(getConfiguration() - newConf).magnitude * 0.1f);
+        MoveStraigthTo(newConf, clockwise, spatialOfConfiguration(getConfiguration() - newConf).magnitude * 0.1f);
     }
     public bool MoveFinished()
     {
         return !target.HasValue;
     }
-
+    
+    public float normalizeAngle(float angle)
+    {
+        while (angle < 0)
+            angle += 360;
+        while (angle >= 360)
+            angle -= 360;
+        return angle;
+    }
 	// Update is called once per frame
 	void Update () {
 		if (target.HasValue)
         {
             Vector3 current = getConfiguration();
             Vector3 diff = target.Value - current;
+            diff.z = normalizeAngle(diff.z);
+            if (!clockwise && diff.z != 0)
+                diff.z = diff.z - 360;
             Vector3 new_conf = target.Value;
             if (Time.fixedDeltaTime < remainingTime)
                 new_conf = current + diff * (Time.fixedDeltaTime/remainingTime);

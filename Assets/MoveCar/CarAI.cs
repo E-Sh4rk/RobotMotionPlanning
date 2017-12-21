@@ -64,7 +64,7 @@ public class CarAI : MonoBehaviour {
         components.MakeSet(pts[0]);
         pts.Add(ConfigInfos.finalConf);
         components.MakeSet(pts[1]);
-        if (phy.configurationsStraightReachable(pts[0], pts[1]))
+        if (phy.moveAllowed(pts[0], pts[1]))
         {
             dico.Add(new Link(pts[0], pts[1]), (pts[0] - pts[1]).magnitude);
             components.UnionValues(pts[0], pts[1]);
@@ -86,7 +86,7 @@ public class CarAI : MonoBehaviour {
                 {
                     if (components_linked.Contains(components.Find(v).value))
                         continue;
-                    bool linked = phy.configurationsStraightReachable(v, pt);
+                    bool linked = phy.moveAllowed(v, pt);
                     tmp_dico.Add(v, linked);
                     if (linked)
                     {
@@ -105,7 +105,7 @@ public class CarAI : MonoBehaviour {
                         }
                         catch
                         {
-                            linked = phy.configurationsStraightReachable(v, pt);
+                            linked = phy.moveAllowed(v, pt);
                         }
                         if (linked)
                             Debug.DrawLine(controller.spatialOfConfiguration(v), controller.spatialOfConfiguration(pt), Color.red, Mathf.Infinity);
@@ -175,7 +175,7 @@ public class CarAI : MonoBehaviour {
     // Update is called once per frame
     List<Vector3> targets = new List<Vector3>();
     void Update () {
-        if (phy.inCollisionWithObstacles())
+        if (phy.currentlyInCollision())
             controller.changeColor(Color.red);
         else
             controller.changeColor(Color.green);
@@ -184,7 +184,7 @@ public class CarAI : MonoBehaviour {
         {
             if (targets.Count > 0)
             {
-                controller.MoveStraigthTo(targets[0]);
+                controller.MoveStraigthTo(targets[0], phy.clockwisePreferedForMove(controller.getConfiguration(),targets[0]));
                 targets.RemoveAt(0);
             }
         }

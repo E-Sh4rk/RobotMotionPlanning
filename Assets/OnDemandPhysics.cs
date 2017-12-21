@@ -25,12 +25,11 @@ public class OnDemandPhysics : MonoBehaviour {
     {
         Vector3 conf_save = control.getConfiguration();
         control.setConfiguration(conf);
-        bool result = inCollisionWithObstacles();
+        bool result = currentlyInCollision();
         control.setConfiguration(conf_save);
         return result;
     }
-
-    public bool inCollisionWithObstacles()
+    public bool currentlyInCollision()
     {
         Vector3 boxHalfExtents = multiplyComponents(coll.size / 2, transform.localScale);
         Quaternion boxRotation = transform.rotation;
@@ -39,18 +38,21 @@ public class OnDemandPhysics : MonoBehaviour {
         return Physics.CheckBox(boxCenter, boxHalfExtents, boxRotation, layerMask, QueryTriggerInteraction.Collide);
     }
 
-    public bool configurationsStraightReachable(Vector3 init, Vector3 target)
+    public bool moveAllowed(Vector3 init, Vector3 target, bool clockwise)
     {
         Vector3 conf_save = control.getConfiguration();
 
         Vector3 diff = target - init;
+        diff.z = control.normalizeAngle(diff.z);
+        if (!clockwise && diff.z != 0)
+            diff.z = diff.z - 360;
         int nb_steps = (int)(diff.magnitude * resolution) + 1;
 
         bool collision = false;
         for (int i = 0; i <= nb_steps; i++)
         {
             control.setConfiguration(init + diff * ((float)i / nb_steps));
-            if (inCollisionWithObstacles())
+            if (currentlyInCollision())
             {
                 collision = true;
                 break;
@@ -60,14 +62,23 @@ public class OnDemandPhysics : MonoBehaviour {
         control.setConfiguration(conf_save);
         return !collision;
     }
-
-    public bool configurationStraightReachable(Vector3 target)
+    public bool moveAllowed(Vector3 init, Vector3 target)
     {
-        return configurationsStraightReachable(control.getConfiguration(), target);
+        return moveAllowed(init, target, false) || moveAllowed(init, target, true);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    public bool clockwisePreferedForMove(Vector3 init, Vector3 target)
+    {
+        Vector3 diff = target - init;
+        diff.z = control.normalizeAngle(diff.z);
+        bool result = diff.z < 180;
+        if (!moveAllowed(init, target, result) && moveAllowed(init, target, !result))
+            return !result;
+        return result;
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 }
