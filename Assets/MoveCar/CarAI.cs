@@ -20,7 +20,10 @@ public class CarAI : MonoBehaviour {
 
         controller.setConfiguration(ConfigInfos.initialConf);
         if (phy.configurationStraightReachable(ConfigInfos.finalConf))
-            controller.MoveStraigthTo(ConfigInfos.finalConf, 5f);
+        {
+            targets.Add(ConfigInfos.finalConf);
+            targets.Add(ConfigInfos.initialConf);
+        }
     }
 
     struct Link
@@ -70,6 +73,7 @@ public class CarAI : MonoBehaviour {
         }
 
         int i = 0;
+        Dictionary<Vector3, bool> tmp_dico = new Dictionary<Vector3, bool>();
         while (components.Find(pts[0]).value != components.Find(pts[1]).value)
         {
             if (i >= maxPointsMonteCarlo)
@@ -78,28 +82,42 @@ public class CarAI : MonoBehaviour {
             Vector3 pt = DrawConfiguration();
             if (!phy.configurationInCollision(pt))
             {
-                List<Link> successful_links = new List<Link>();
+                bool reachable = false;
                 HashSet<Vector3> components_linked = new HashSet<Vector3>();
                 foreach(Vector3 v in pts)
                 {
+                    if (components_linked.Contains(components.Find(v).value))
+                        continue;
                     bool linked = phy.configurationsStraightReachable(v, pt);
+                    tmp_dico.Add(v, linked);
                     if (linked)
                     {
-                        successful_links.Add(new Link(v, pt));
+                        reachable = true;
                         components_linked.Add(components.Find(v).value);
                     }
                 }
-                if (successful_links.Count == 0 || components_linked.Count >= 2)
+                if (!reachable || components_linked.Count >= 2)
                 {
+                    foreach (Vector3 v in pts)
+                    {
+                        bool linked = false;
+                        try
+                        {
+                            linked = tmp_dico[v];
+                        }
+                        catch
+                        {
+                            linked = phy.configurationsStraightReachable(v, pt);
+                        }
+                        dico.Add(new Link(v, pt), linked ? (v-pt).magnitude : Mathf.Infinity);
+                    }
                     pts.Add(pt);
                     components.MakeSet(pt);
-                    foreach (Link l in successful_links)
-                        dico.Add(l, (l.c1 - l.c2).magnitude);
                     foreach (Vector3 v in components_linked)
                         components.UnionValues(pt, v);
                 }
+                tmp_dico.Clear();
             }
-
             i++;
         }
 
@@ -118,10 +136,20 @@ public class CarAI : MonoBehaviour {
     }
 
     // Update is called once per frame
+    List<Vector3> targets = new List<Vector3>();
     void Update () {
         if (phy.inCollisionWithObstacles())
             controller.changeColor(Color.red);
         else
             controller.changeColor(Color.green);
+
+        if (controller.MoveFinished())
+        {
+            if (targets.Count > 0)
+            {
+                controller.MoveStraigthTo(targets[0]);
+                targets.RemoveAt(0);
+            }
+        }
     }
 }

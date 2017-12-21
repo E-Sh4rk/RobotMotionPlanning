@@ -66,6 +66,14 @@ public class CarController : MonoBehaviour {
         target = newConf;
         remainingTime = time;
     }
+    public void MoveStraigthTo(Vector3 newConf)
+    {
+        MoveStraigthTo(newConf, (getConfiguration() - newConf).magnitude * 0.1f);
+    }
+    public bool MoveFinished()
+    {
+        return !target.HasValue;
+    }
 
 	// Update is called once per frame
 	void Update () {
