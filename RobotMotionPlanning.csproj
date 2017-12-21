@@ -226,6 +226,15 @@
     <Compile Include="Assets\MoveCar\CarAI.cs" />
     <Compile Include="Assets\MoveCar\UnionFind.cs" />
     <Compile Include="Assets\OnDemandPhysics.cs" />
+    <Compile Include="Assets\PriorityQueue\FastPriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\FastPriorityQueueNode.cs" />
+    <Compile Include="Assets\PriorityQueue\GenericPriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\GenericPriorityQueueNode.cs" />
+    <Compile Include="Assets\PriorityQueue\IFixedSizePriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\IPriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\SimplePriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\StablePriorityQueue.cs" />
+    <Compile Include="Assets\PriorityQueue\StablePriorityQueueNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Car\CarGuidelines.txt" />

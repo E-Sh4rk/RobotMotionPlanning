@@ -19,11 +19,9 @@ public class CarAI : MonoBehaviour {
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.y));
 
         controller.setConfiguration(ConfigInfos.initialConf);
-        if (phy.configurationStraightReachable(ConfigInfos.finalConf))
-        {
-            targets.Add(ConfigInfos.finalConf);
-            targets.Add(ConfigInfos.initialConf);
-        }
+        List<Vector3> path = FindPathMonteCarlo();
+        if (path != null)
+            targets.AddRange(path);
     }
 
     struct Link
@@ -121,10 +119,47 @@ public class CarAI : MonoBehaviour {
             i++;
         }
 
-        // Searching a path in the connected component of the initial config...
-        // TODO
+        // Searching a path with Dijkstra in the connected component of the initial config...
+        Vector3 component = components.Find(ConfigInfos.initialConf).value;
+        pts.RemoveAll((v => components.Find(v).value != component));
+        Priority_Queue.SimplePriorityQueue<Vector3> vertices = new Priority_Queue.SimplePriorityQueue<Vector3>();
+        foreach (Vector3 pt in pts)
+        {
+            if (pt == ConfigInfos.initialConf)
+                vertices.Enqueue(pt, 0);
+            else
+                vertices.Enqueue(pt, Mathf.Infinity);
+        }
 
-        return null;
+        Dictionary<Vector3, Vector3> paths = new Dictionary<Vector3, Vector3>();
+        float current_w = vertices.GetPriority(vertices.First);
+        Vector3 current = vertices.Dequeue();
+        while (current != ConfigInfos.finalConf)
+        {
+            foreach(Vector3 v in vertices)
+            {
+                float w = GetMemoisedValue(dico, v, current);
+                float new_w = w + current_w;
+                if (new_w < vertices.GetPriority(v))
+                {
+                    vertices.UpdatePriority(v, new_w);
+                    paths[v] = current;
+                }
+            }
+            current_w = vertices.GetPriority(vertices.First);
+            current = vertices.Dequeue();
+        }
+
+        List<Vector3> result = new List<Vector3>();
+        result.Add(ConfigInfos.finalConf);
+        current = ConfigInfos.finalConf;
+        while (current != ConfigInfos.initialConf)
+        {
+            current = paths[current];
+            result.Add(current);
+        }
+        result.Reverse();
+        return result;
     }
 
     Vector3 DrawConfiguration()
