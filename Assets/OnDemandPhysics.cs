@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OnDemandPhysics : MonoBehaviour {
 
-    public float resolution = 5f;
+    public float resolution = 3f;
 
     BoxCollider coll;
     CarController control;
@@ -46,6 +46,7 @@ public class OnDemandPhysics : MonoBehaviour {
         diff.z = control.normalizeAngle(diff.z);
         if (!clockwise && diff.z != 0)
             diff.z = diff.z - 360;
+        float magnitude = new Vector3(diff.x, diff.y, diff.z*8f/360f).magnitude;
         int nb_steps = (int)(diff.magnitude * resolution) + 1;
 
         bool collision = false;
