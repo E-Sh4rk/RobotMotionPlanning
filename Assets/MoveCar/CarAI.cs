@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class CarAI : MonoBehaviour {
 
-    public int maxPointsMonteCarlo = 10000;
+    public int maxPointsMonteCarlo = 2500;
+    public int maxConsecutiveRejections = 10;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -19,7 +20,7 @@ public class CarAI : MonoBehaviour {
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
 
         controller.setConfiguration(ConfigInfos.initialConf);
-        List<Vector3> path = FindPathMonteCarlo();
+        List<Vector3> path = FindPath();
         if (path != null)
             targets.AddRange(path);
     }
@@ -43,15 +44,17 @@ public class CarAI : MonoBehaviour {
                 return Mathf.Infinity;
         return value;
     }
-
+    
     List<Vector3> FindPathMonteCarlo()
     {
         /*
+        Please configure the random generation of configurations before calling this function (or you can use FindPath instead).
         ALGO:
         We draw a point:
           - If it connects two connected component together, we keep it
           - If it is not reachable from any previous configuration, we keep it
           - Otherwise we ignore it
+          - We can also accept a point that do not respect any of the conditions after a certain number of consecutive rejections
         We update the connected components (union find) and eventually the dico for memoisation
         We stop when the initial config and the final one are in the same connected component
         We retrieve the configurations of this connected component and we search a path with it (we can use a dico for memoisation)
@@ -71,6 +74,7 @@ public class CarAI : MonoBehaviour {
         }
 
         int i = 0;
+        int cons_rejections = 0;
         Dictionary<Vector3, bool> tmp_dico = new Dictionary<Vector3, bool>();
         while (components.Find(pts[0]).value != components.Find(pts[1]).value)
         {
@@ -94,8 +98,9 @@ public class CarAI : MonoBehaviour {
                         components_linked.Add(components.Find(v).value);
                     }
                 }
-                if (!reachable || components_linked.Count >= 2)
+                if (!reachable || components_linked.Count >= 2 || cons_rejections >= maxConsecutiveRejections)
                 {
+                    cons_rejections = 0;
                     foreach (Vector3 v in pts)
                     {
                         bool linked = false;
@@ -109,13 +114,15 @@ public class CarAI : MonoBehaviour {
                         }
                         if (linked)
                             Debug.DrawLine(controller.spatialOfConfiguration(v), controller.spatialOfConfiguration(pt), Color.red, Mathf.Infinity);
-                        dico.Add(new Link(v, pt), linked ? (v-pt).magnitude : Mathf.Infinity);
+                        dico.Add(new Link(v, pt), linked ? (v - pt).magnitude : Mathf.Infinity);
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
                     foreach (Vector3 v in components_linked)
                         components.UnionValues(pt, v);
                 }
+                else
+                    cons_rejections++;
                 tmp_dico.Clear();
             }
             i++;
@@ -164,11 +171,38 @@ public class CarAI : MonoBehaviour {
         return result;
     }
 
+    List<Vector3> FindPath()
+    {
+        // Try 1 : the manathan way
+        random_allowed_angles = new int[] { 0, 90, 180, 270 };
+        List<Vector3> path = FindPathMonteCarlo();
+        if (path != null)
+            return path;
+        // Try 2 : intermediate way
+        random_allowed_angles = new int[] { 0, 45, 90, 135, 180, 225, 270, 315 };
+        path = FindPathMonteCarlo();
+        if (path != null)
+            return path;
+        // Try 3 : full configurations space
+        random_allowed_angles = null;
+        path = FindPathMonteCarlo();
+        if (path != null)
+            return path;
+
+        return null;
+    }
+
+    int[] random_allowed_angles = null;
     Vector3 DrawConfiguration()
     {
         float x = Random.Range(bounds.center.x - bounds.size.x/2, bounds.center.x + bounds.size.x/2);
         float y = Random.Range(bounds.center.z - bounds.size.z/2, bounds.center.z + bounds.size.z/2);
-        float a = Random.Range(0, 360);
+        int a = 0;
+        if (random_allowed_angles == null)
+            a = Random.Range(0, 360);
+        else
+            a = random_allowed_angles[Random.Range(0, random_allowed_angles.Length)];
+
         return new Vector3(x,y,a);
     }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OnDemandPhysics : MonoBehaviour {
 
-    public float resolution = 1f;
+    public float resolution = 5f;
 
     BoxCollider coll;
     CarController control;
