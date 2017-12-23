@@ -13,6 +13,8 @@ public class GUI2 : MonoBehaviour {
         {
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 25, 100, 25), "Back"))
                 SceneManager.LoadScene(0);
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 75, 100, 25), "Replay"))
+                car.GetComponent<CarAI>().replay();
         }
     }
 

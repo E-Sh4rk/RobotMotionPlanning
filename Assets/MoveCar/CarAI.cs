@@ -27,14 +27,29 @@ public class CarAI : MonoBehaviour {
         {
             List<Vector3> path = FindPath();
             if (path != null)
-                targets.AddRange(path);
+            {
+                save_targets = path.ToArray();
+                targets.AddRange(save_targets);
+            }
+            else
+                save_targets = null;
         }
         if (ConfigInfos.mode == 1)
         {
-            ReedAndShepp.ReedAndShepp.Vector3[] tmp;
-            Debug.Log(ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out tmp));
-            targets.AddRange(Misc.RSPathToUnityPath(tmp));
+            ReedAndShepp.ReedAndShepp.Vector3[] path;
+            Debug.Log(ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out path));
+            save_targets = Misc.RSPathToUnityPath(path);
+            targets.AddRange(save_targets);
         }
+    }
+    Vector3[] save_targets = null;
+
+    public void replay()
+    {
+        finished = false;
+        controller.setConfiguration(ConfigInfos.initialConf);
+        if (save_targets != null)
+            targets.AddRange(save_targets);
     }
 
     struct Link
