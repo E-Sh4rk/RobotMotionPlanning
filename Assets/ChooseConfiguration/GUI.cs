@@ -36,6 +36,14 @@ public class GUI : MonoBehaviour {
 
                 SceneManager.LoadScene(1);
             }
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 125, 150, 25), "Combine both !"))
+            {
+                ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.mode = 2;
+
+                SceneManager.LoadScene(1);
+            }
         }
     }
 

@@ -41,6 +41,28 @@ public class CarAI : MonoBehaviour {
             save_targets = Misc.RSPathToUnityPath(path);
             targets.AddRange(save_targets);
         }
+        if (ConfigInfos.mode == 2)
+        {
+            List<Vector3> path = FindPath();
+            if (path != null)
+            {
+                Vector3[] mc_path = path.ToArray();
+                path = new List<Vector3>();
+
+                Vector3 lastConf = mc_path[0];
+                for (int i = 1; i < mc_path.Length; i++)
+                {
+                    Vector3 newConf = mc_path[i];
+                    path.AddRange(ComputeRASOfStraightLine(lastConf, newConf));
+                    lastConf = newConf;
+                }
+
+                save_targets = path.ToArray();
+                targets.AddRange(save_targets);
+            }
+            else
+                save_targets = null;
+        }
     }
     Vector3[] save_targets = null;
 
@@ -50,6 +72,13 @@ public class CarAI : MonoBehaviour {
         controller.setConfiguration(ConfigInfos.initialConf);
         if (save_targets != null)
             targets.AddRange(save_targets);
+    }
+
+    Vector3[] ComputeRASOfStraightLine(Vector3 init, Vector3 target)
+    {
+        ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
+        ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
+        return Misc.RSPathToUnityPath(ras_path);
     }
 
     struct Link
