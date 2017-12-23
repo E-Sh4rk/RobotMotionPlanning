@@ -48,6 +48,22 @@ public class CarController : MonoBehaviour {
         return new Vector3(conf.x, 0, conf.y);
     }
 
+    public static float normalizeAngle(float angle)
+    {
+        while (angle < 0)
+            angle += 360;
+        while (angle >= 360)
+            angle -= 360;
+        return angle;
+    }
+    public static Vector3 computeDiffVector(Vector3 init, Vector3 target, bool clockwise)
+    {
+        Vector3 diff = target - init;
+        diff.z = normalizeAngle(diff.z);
+        if (!clockwise && diff.z != 0)
+            diff.z = diff.z - 360;
+        return diff;
+    }
     public static float magnitudeOfDiffVector(Vector3 diff)
     {
         return new Vector3(diff.x, diff.y, diff.z * 16f / 360f).magnitude;
@@ -80,30 +96,19 @@ public class CarController : MonoBehaviour {
     }
     public void MoveStraigthTo(Vector3 newConf, bool clockwise)
     {
-        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(getConfiguration() - newConf) * 0.1f);
+        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(computeDiffVector(getConfiguration(), newConf, clockwise)) * 0.1f);
     }
     public bool MoveFinished()
     {
         return !target.HasValue;
     }
     
-    public static float normalizeAngle(float angle)
-    {
-        while (angle < 0)
-            angle += 360;
-        while (angle >= 360)
-            angle -= 360;
-        return angle;
-    }
 	// Update is called once per frame
 	void Update () {
 		if (target.HasValue)
         {
             Vector3 current = getConfiguration();
-            Vector3 diff = target.Value - current;
-            diff.z = normalizeAngle(diff.z);
-            if (!clockwise && diff.z != 0)
-                diff.z = diff.z - 360;
+            Vector3 diff = computeDiffVector(current, target.Value, clockwise);
             Vector3 new_conf = target.Value;
             if (Time.fixedDeltaTime < remainingTime)
                 new_conf = current + diff * (Time.fixedDeltaTime/remainingTime);

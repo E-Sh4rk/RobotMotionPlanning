@@ -53,7 +53,7 @@ public class CarAI : MonoBehaviour {
                 for (int i = 1; i < mc_path.Length; i++)
                 {
                     Vector3 newConf = mc_path[i];
-                    path.AddRange(ComputeRASOfStraightLine(lastConf, newConf));
+                    path.AddRange(ComputeRASOfStraightLine(lastConf, newConf, phy.clockwisePreferedForMove(lastConf, newConf)));
                     lastConf = newConf;
                 }
 
@@ -74,11 +74,23 @@ public class CarAI : MonoBehaviour {
             targets.AddRange(save_targets);
     }
 
-    Vector3[] ComputeRASOfStraightLine(Vector3 init, Vector3 target)
+    Vector3[] ComputeRASOfStraightLine(Vector3 init, Vector3 target, bool clockwise)
     {
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
         ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
-        return Misc.RSPathToUnityPath(ras_path);
+        Vector3[] path = Misc.RSPathToUnityPath(ras_path);
+        if (phy.pathAllowed(path))
+            return path;
+        else
+        {
+            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise)/2;
+            Vector3[] path1 = ComputeRASOfStraightLine(init, middle_conf, clockwise);
+            Vector3[] path2 = ComputeRASOfStraightLine(middle_conf, target, clockwise);
+            path = new Vector3[path1.Length + path2.Length - 1];
+            System.Array.Copy(path1, path, path1.Length);
+            System.Array.Copy(path2, 1, path, path1.Length, path2.Length-1);
+            return path;
+        }
     }
 
     struct Link
@@ -101,6 +113,10 @@ public class CarAI : MonoBehaviour {
         return value;
     }
     
+    float distanceBetweenConf(Vector3 v1, Vector3 v2)
+    {
+        return CarController.magnitudeOfDiffVector(CarController.computeDiffVector(v1, v2, phy.clockwisePreferedForMove(v1, v2)));
+    }
     List<Vector3> FindPathMonteCarlo()
     {
         /*
@@ -125,7 +141,7 @@ public class CarAI : MonoBehaviour {
         components.MakeSet(pts[1]);
         if (phy.moveAllowed(pts[0], pts[1]))
         {
-            dico.Add(new Link(pts[0], pts[1]), CarController.spatialCoordOfConfiguration(pts[0] - pts[1]).magnitude);
+            dico.Add(new Link(pts[0], pts[1]), distanceBetweenConf(pts[0],pts[1]));
             components.UnionValues(pts[0], pts[1]);
         }
 
@@ -170,7 +186,7 @@ public class CarAI : MonoBehaviour {
                         }
                         if (linked)
                             Debug.DrawLine(CarController.spatialCoordOfConfiguration(v), CarController.spatialCoordOfConfiguration(pt), Color.red, 5f);
-                        dico.Add(new Link(v, pt), linked ? CarController.spatialCoordOfConfiguration(v-pt).magnitude : Mathf.Infinity);
+                        dico.Add(new Link(v, pt), linked ? distanceBetweenConf(v, pt) : Mathf.Infinity);
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
