@@ -43,10 +43,10 @@ public class OnDemandPhysics : MonoBehaviour {
         Vector3 conf_save = control.getConfiguration();
 
         Vector3 diff = target - init;
-        diff.z = control.normalizeAngle(diff.z);
+        diff.z = CarController.normalizeAngle(diff.z);
         if (!clockwise && diff.z != 0)
             diff.z = diff.z - 360;
-        int nb_steps = (int)(control.magnitudeOfDiffVector(diff) * resolution) + 1;
+        int nb_steps = (int)(CarController.magnitudeOfDiffVector(diff) * resolution) + 1;
 
         bool collision = false;
         for (int i = 0; i <= nb_steps; i++)
@@ -70,7 +70,7 @@ public class OnDemandPhysics : MonoBehaviour {
     public bool clockwisePreferedForMove(Vector3 init, Vector3 target)
     {
         Vector3 diff = target - init;
-        diff.z = control.normalizeAngle(diff.z);
+        diff.z = CarController.normalizeAngle(diff.z);
         bool result = diff.z < 180;
         if (!moveAllowed(init, target, result) && moveAllowed(init, target, !result))
             return !result;

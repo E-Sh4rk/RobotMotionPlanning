@@ -22,14 +22,19 @@ public class CarAI : MonoBehaviour {
         ras = new ReedAndShepp.ReedAndShepp(Application.streamingAssetsPath);
 
         controller.setConfiguration(ConfigInfos.initialConf);
-        List<Vector3> path = FindPath();
-        if (path != null)
-            targets.AddRange(path);
 
-        /*controller.setConfiguration(new Vector3(0,0,0));
-        ReedAndShepp.ReedAndShepp.Vector3[] tmp;
-        Debug.Log(ras.ComputeCurve(new ReedAndShepp.ReedAndShepp.Vector3(0,0,0), new ReedAndShepp.ReedAndShepp.Vector3(0, 1, 0), 0.1, out tmp));
-        targets.AddRange(Misc.RSPathToUnityPath(tmp));*/
+        if (ConfigInfos.mode == 0)
+        {
+            List<Vector3> path = FindPath();
+            if (path != null)
+                targets.AddRange(path);
+        }
+        if (ConfigInfos.mode == 1)
+        {
+            ReedAndShepp.ReedAndShepp.Vector3[] tmp;
+            Debug.Log(ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out tmp));
+            targets.AddRange(Misc.RSPathToUnityPath(tmp));
+        }
     }
 
     struct Link
@@ -76,7 +81,7 @@ public class CarAI : MonoBehaviour {
         components.MakeSet(pts[1]);
         if (phy.moveAllowed(pts[0], pts[1]))
         {
-            dico.Add(new Link(pts[0], pts[1]), controller.spatialCoordOfConfiguration(pts[0] - pts[1]).magnitude);
+            dico.Add(new Link(pts[0], pts[1]), CarController.spatialCoordOfConfiguration(pts[0] - pts[1]).magnitude);
             components.UnionValues(pts[0], pts[1]);
         }
 
@@ -120,8 +125,8 @@ public class CarAI : MonoBehaviour {
                             linked = phy.moveAllowed(v, pt);
                         }
                         if (linked)
-                            Debug.DrawLine(controller.spatialCoordOfConfiguration(v), controller.spatialCoordOfConfiguration(pt), Color.red, Mathf.Infinity);
-                        dico.Add(new Link(v, pt), linked ? controller.spatialCoordOfConfiguration(v-pt).magnitude : Mathf.Infinity);
+                            Debug.DrawLine(CarController.spatialCoordOfConfiguration(v), CarController.spatialCoordOfConfiguration(pt), Color.red, 5f);
+                        dico.Add(new Link(v, pt), linked ? CarController.spatialCoordOfConfiguration(v-pt).magnitude : Mathf.Infinity);
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
@@ -216,6 +221,12 @@ public class CarAI : MonoBehaviour {
         return new Vector3(x,y,a);
     }
 
+    bool finished = false;
+    public bool HasFinished()
+    {
+        return finished;
+    }
+
     // Update is called once per frame
     List<Vector3> targets = new List<Vector3>();
     void Update () {
@@ -231,6 +242,8 @@ public class CarAI : MonoBehaviour {
                 controller.MoveStraigthTo(targets[0], phy.clockwisePreferedForMove(controller.getConfiguration(),targets[0]));
                 targets.RemoveAt(0);
             }
+            else
+                finished = true;
         }
     }
 }

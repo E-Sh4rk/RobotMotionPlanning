@@ -43,12 +43,12 @@ public class CarController : MonoBehaviour {
         return new Vector3(pos.x, pos.y, getAngle());
     }
 
-    public Vector3 spatialCoordOfConfiguration(Vector3 conf)
+    public static Vector3 spatialCoordOfConfiguration(Vector3 conf)
     {
         return new Vector3(conf.x, 0, conf.y);
     }
 
-    public float magnitudeOfDiffVector(Vector3 diff)
+    public static float magnitudeOfDiffVector(Vector3 diff)
     {
         return new Vector3(diff.x, diff.y, diff.z * 16f / 360f).magnitude;
     }
@@ -87,7 +87,7 @@ public class CarController : MonoBehaviour {
         return !target.HasValue;
     }
     
-    public float normalizeAngle(float angle)
+    public static float normalizeAngle(float angle)
     {
         while (angle < 0)
             angle += 360;

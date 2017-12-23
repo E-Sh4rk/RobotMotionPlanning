@@ -293,6 +293,7 @@ GameObject:
   - component: {fileID: 2069631376}
   - component: {fileID: 2069631375}
   - component: {fileID: 2069631379}
+  - component: {fileID: 2069631380}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -374,3 +375,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: 10
+--- !u!114 &2069631380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2069631374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4fe4c43614c3bb4aa0857fc9272cbec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  car: {fileID: 979857156}

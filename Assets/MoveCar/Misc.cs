@@ -6,11 +6,11 @@ public class Misc {
 
 	public static Vector3 RSConfToUnityConf(ReedAndShepp.ReedAndShepp.Vector3 v)
     {
-        return new Vector3(v.x,v.y,v.z * Mathf.Rad2Deg);
+        return new Vector3(-v.x,v.y,CarController.normalizeAngle(v.z * Mathf.Rad2Deg + 90));
     }
     public static ReedAndShepp.ReedAndShepp.Vector3 UnityConfToRSConf(Vector3 v)
     {
-        return new ReedAndShepp.ReedAndShepp.Vector3(v.x, v.y, v.z * Mathf.Rad2Deg);
+        return new ReedAndShepp.ReedAndShepp.Vector3(-v.x, v.y, (v.z - 90) * Mathf.Deg2Rad);
     }
     public static Vector3[] RSPathToUnityPath(ReedAndShepp.ReedAndShepp.Vector3[] v)
     {

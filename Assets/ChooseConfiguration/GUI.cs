@@ -7,6 +7,7 @@ public static class ConfigInfos
 {
     public static Vector3 initialConf;
     public static Vector3 finalConf;
+    public static int mode;
 }
 
 
@@ -19,10 +20,19 @@ public class GUI : MonoBehaviour {
     {
         if(lastCar.GetComponent<CarControl>().IsFixed())
         {
-             if (UnityEngine.GUI.Button(new Rect(Screen.width/2-50, 25, 100, 25), "Go !"))
+             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 25, 150, 25), "Monte Carlo !"))
              {
                 ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.mode = 0;
+
+                SceneManager.LoadScene(1);
+            }
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 75, 150, 25), "Reed and Shepp !"))
+            {
+                ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
+                ConfigInfos.mode = 1;
 
                 SceneManager.LoadScene(1);
             }
