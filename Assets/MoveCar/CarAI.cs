@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class CarAI : MonoBehaviour {
 
-    public int maxPointsMonteCarlo = 2500;
+    public int maxPointsMonteCarlo = 1000;
     public int maxConsecutiveRejections = 10;
 
     CarController controller;
@@ -124,8 +124,8 @@ public class CarAI : MonoBehaviour {
                 else
                     cons_rejections++;
                 tmp_dico.Clear();
+                i++;
             }
-            i++;
         }
 
         // Searching a path with Dijkstra in the connected component of the initial config...
