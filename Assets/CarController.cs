@@ -84,6 +84,13 @@ public class CarController : MonoBehaviour {
             r.enabled = visible;
     }
 
+    public void setGlobalScale(float sx, float sy, float sz)
+    {
+        Vector3 cfg = getConfiguration();
+        transform.localScale = new Vector3(sx, sy, sz);
+        setConfiguration(cfg);
+    }
+
     // MOVEMENTS
     Vector3? target = null;
     float remainingTime = 0f;

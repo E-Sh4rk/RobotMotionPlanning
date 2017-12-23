@@ -29,6 +29,7 @@ public class CarAI : MonoBehaviour {
             if (path != null)
             {
                 save_targets = path.ToArray();
+                SimplifyPath(save_targets);
                 targets.AddRange(save_targets);
             }
             else
@@ -47,14 +48,13 @@ public class CarAI : MonoBehaviour {
             if (path != null)
             {
                 Vector3[] mc_path = path.ToArray();
+                SimplifyPath(mc_path);
                 path = new List<Vector3>();
 
-                Vector3 lastConf = mc_path[0];
                 for (int i = 1; i < mc_path.Length; i++)
                 {
-                    Vector3 newConf = mc_path[i];
-                    path.AddRange(ComputeRASOfStraightLine(lastConf, newConf, phy.clockwisePreferedForMove(lastConf, newConf)));
-                    lastConf = newConf;
+                    Vector3[] p = ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], phy.clockwisePreferedForMove(mc_path[i-1], mc_path[i]));
+                    path.AddRange(p);
                 }
 
                 save_targets = path.ToArray();
@@ -265,6 +265,22 @@ public class CarAI : MonoBehaviour {
         Debug.Log("Full search failed.");
 
         return null;
+    }
+    void SimplifyPath(Vector3[] p)
+    {
+        // TODO : Real simplification
+        // For example : keep away conf from the obstacles by growing the car and see where the collision is. We do this until the move become impossible.
+        for (int i = 1; i < p.Length - 1; i++)
+        {
+            // Optimisation : adapt the rotation of the target to a more natural one
+            Vector3 orientation = CarController.spatialCoordOfConfiguration(p[i+1]) - CarController.spatialCoordOfConfiguration(p[i-1]);
+            float angle = Vector3.Angle(new Vector3(0, 0, 1), orientation);
+            if (orientation.x < 0)
+                angle = 360 - angle;
+            Vector3 new_target = new Vector3(p[i].x, p[i].y, angle);
+            if (phy.moveAllowed(p[i - 1], new_target) && phy.moveAllowed(new_target, p[i + 1]))
+                p[i] = new_target;
+        }
     }
 
     int[] random_allowed_angles = null;
