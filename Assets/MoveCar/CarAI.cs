@@ -11,6 +11,7 @@ public class CarAI : MonoBehaviour {
     CarController controller;
     OnDemandPhysics phy;
     Bounds bounds;
+    ReedAndShepp.ReedAndShepp ras;
 
 	// Use this for initialization
 	void Start () {
@@ -18,11 +19,15 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
+        ras = new ReedAndShepp.ReedAndShepp(Application.streamingAssetsPath);
 
         controller.setConfiguration(ConfigInfos.initialConf);
         List<Vector3> path = FindPath();
         if (path != null)
             targets.AddRange(path);
+
+        /*ReedAndShepp.ReedAndShepp.Vector3[] tmp;
+        Debug.Log(ras.ComputeCurve(new ReedAndShepp.ReedAndShepp.Vector3(0,0,0), new ReedAndShepp.ReedAndShepp.Vector3(1, 1, 0), 0.1, out tmp));*/
     }
 
     struct Link
@@ -178,16 +183,19 @@ public class CarAI : MonoBehaviour {
         List<Vector3> path = FindPathMonteCarlo();
         if (path != null)
             return path;
+        Debug.Log("Manathan search failed.");
         // Try 2 : intermediate way
         random_allowed_angles = new int[] { 0, 45, 90, 135, 180, 225, 270, 315 };
         path = FindPathMonteCarlo();
         if (path != null)
             return path;
+        Debug.Log("Intermediate search failed.");
         // Try 3 : full configurations space
         random_allowed_angles = null;
         path = FindPathMonteCarlo();
         if (path != null)
             return path;
+        Debug.Log("Full search failed.");
 
         return null;
     }
