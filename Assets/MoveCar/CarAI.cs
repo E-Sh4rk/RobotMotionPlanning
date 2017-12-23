@@ -19,7 +19,7 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
-        ras = new ReedAndShepp.ReedAndShepp(Application.streamingAssetsPath);
+        ras = new ReedAndShepp.ReedAndShepp(10, Application.streamingAssetsPath);
 
         controller.setConfiguration(ConfigInfos.initialConf);
 
