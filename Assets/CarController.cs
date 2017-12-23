@@ -43,9 +43,14 @@ public class CarController : MonoBehaviour {
         return new Vector3(pos.x, pos.y, getAngle());
     }
 
-    public Vector3 spatialOfConfiguration(Vector3 conf)
+    public Vector3 spatialCoordOfConfiguration(Vector3 conf)
     {
         return new Vector3(conf.x, 0, conf.y);
+    }
+
+    public float magnitudeOfDiffVector(Vector3 diff)
+    {
+        return new Vector3(diff.x, diff.y, diff.z * 16f / 360f).magnitude;
     }
 
     // DISPLAY
@@ -75,7 +80,7 @@ public class CarController : MonoBehaviour {
     }
     public void MoveStraigthTo(Vector3 newConf, bool clockwise)
     {
-        MoveStraigthTo(newConf, clockwise, spatialOfConfiguration(getConfiguration() - newConf).magnitude * 0.1f);
+        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(getConfiguration() - newConf) * 0.1f);
     }
     public bool MoveFinished()
     {

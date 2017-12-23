@@ -279,7 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07838a20194cb694ba85389d603519d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPointsMonteCarlo: 1000
+  maxPointsMonteCarlo: 2000
   maxConsecutiveRejections: 10
 --- !u!1 &2069631374
 GameObject:
@@ -356,7 +356,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2069631374}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.72, y: 20.97, z: 0.15}
+  m_LocalPosition: {x: 0.72, y: 20.97, z: 2.03}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

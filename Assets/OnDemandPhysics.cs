@@ -46,8 +46,7 @@ public class OnDemandPhysics : MonoBehaviour {
         diff.z = control.normalizeAngle(diff.z);
         if (!clockwise && diff.z != 0)
             diff.z = diff.z - 360;
-        float magnitude = new Vector3(diff.x, diff.y, diff.z*8f/360f).magnitude;
-        int nb_steps = (int)(diff.magnitude * resolution) + 1;
+        int nb_steps = (int)(control.magnitudeOfDiffVector(diff) * resolution) + 1;
 
         bool collision = false;
         for (int i = 0; i <= nb_steps; i++)

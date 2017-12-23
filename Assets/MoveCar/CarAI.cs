@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class CarAI : MonoBehaviour {
 
-    public int maxPointsMonteCarlo = 1000;
+    public int maxPointsMonteCarlo = 2000;
     public int maxConsecutiveRejections = 10;
 
     CarController controller;
@@ -26,8 +26,10 @@ public class CarAI : MonoBehaviour {
         if (path != null)
             targets.AddRange(path);
 
-        /*ReedAndShepp.ReedAndShepp.Vector3[] tmp;
-        Debug.Log(ras.ComputeCurve(new ReedAndShepp.ReedAndShepp.Vector3(0,0,0), new ReedAndShepp.ReedAndShepp.Vector3(1, 1, 0), 0.1, out tmp));*/
+        /*controller.setConfiguration(new Vector3(0,0,0));
+        ReedAndShepp.ReedAndShepp.Vector3[] tmp;
+        Debug.Log(ras.ComputeCurve(new ReedAndShepp.ReedAndShepp.Vector3(0,0,0), new ReedAndShepp.ReedAndShepp.Vector3(0, 1, 0), 0.1, out tmp));
+        targets.AddRange(Misc.RSPathToUnityPath(tmp));*/
     }
 
     struct Link
@@ -74,7 +76,7 @@ public class CarAI : MonoBehaviour {
         components.MakeSet(pts[1]);
         if (phy.moveAllowed(pts[0], pts[1]))
         {
-            dico.Add(new Link(pts[0], pts[1]), (pts[0] - pts[1]).magnitude);
+            dico.Add(new Link(pts[0], pts[1]), controller.spatialCoordOfConfiguration(pts[0] - pts[1]).magnitude);
             components.UnionValues(pts[0], pts[1]);
         }
 
@@ -118,8 +120,8 @@ public class CarAI : MonoBehaviour {
                             linked = phy.moveAllowed(v, pt);
                         }
                         if (linked)
-                            Debug.DrawLine(controller.spatialOfConfiguration(v), controller.spatialOfConfiguration(pt), Color.red, Mathf.Infinity);
-                        dico.Add(new Link(v, pt), linked ? (v - pt).magnitude : Mathf.Infinity);
+                            Debug.DrawLine(controller.spatialCoordOfConfiguration(v), controller.spatialCoordOfConfiguration(pt), Color.red, Mathf.Infinity);
+                        dico.Add(new Link(v, pt), linked ? controller.spatialCoordOfConfiguration(v-pt).magnitude : Mathf.Infinity);
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
