@@ -19,7 +19,7 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
-        ras = new ReedAndShepp.ReedAndShepp(10, Application.streamingAssetsPath);
+        ras = new ReedAndShepp.ReedAndShepp(5, Application.streamingAssetsPath);
 
         controller.setConfiguration(ConfigInfos.initialConf);
 
@@ -29,7 +29,6 @@ public class CarAI : MonoBehaviour {
             if (path != null)
             {
                 save_targets = path.ToArray();
-                SimplifyPath(save_targets);
                 targets.AddRange(save_targets);
             }
             else
@@ -38,7 +37,7 @@ public class CarAI : MonoBehaviour {
         if (ConfigInfos.mode == 1)
         {
             ReedAndShepp.ReedAndShepp.Vector3[] path;
-            Debug.Log(ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out path));
+            ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out path);
             save_targets = Misc.RSPathToUnityPath(path);
             targets.AddRange(save_targets);
         }
@@ -47,13 +46,13 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                Vector3[] mc_path = path.ToArray();
-                SimplifyPath(mc_path);
+                Vector3[] mc_path = optimizePath(path.ToArray());
                 path = new List<Vector3>();
 
                 for (int i = 1; i < mc_path.Length; i++)
                 {
-                    Vector3[] p = ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], phy.clockwisePreferedForMove(mc_path[i-1], mc_path[i]));
+                    Vector3[] p;
+                    ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], 10, out p);
                     path.AddRange(p);
                 }
 
@@ -74,23 +73,91 @@ public class CarAI : MonoBehaviour {
             targets.AddRange(save_targets);
     }
 
-    Vector3[] ComputeRASOfStraightLine(Vector3 init, Vector3 target, bool clockwise)
+    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, int prof_max)
     {
+        Vector3[] p;
+        return ComputeRASOfStraightLine(init, target, phy.clockwisePreferedForMove(init, target), prof_max, out p);
+    }
+    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, int prof_max, out Vector3[] out_path)
+    {
+        return ComputeRASOfStraightLine(init, target, phy.clockwisePreferedForMove(init, target), prof_max, out out_path);
+    }
+    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, bool clockwise, int prof_max, out Vector3[] out_path)
+    {
+        if (prof_max < 0)
+        {
+            out_path = new Vector3[] { init, target };
+            return Mathf.Infinity;
+        }
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
-        ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
-        Vector3[] path = Misc.RSPathToUnityPath(ras_path);
-        if (phy.pathAllowed(path))
-            return path;
+        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
+        out_path = Misc.RSPathToUnityPath(ras_path);
+        if (phy.pathAllowed(out_path))
+            return l;
         else
         {
             Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise)/2;
-            Vector3[] path1 = ComputeRASOfStraightLine(init, middle_conf, clockwise);
-            Vector3[] path2 = ComputeRASOfStraightLine(middle_conf, target, clockwise);
-            path = new Vector3[path1.Length + path2.Length - 1];
-            System.Array.Copy(path1, path, path1.Length);
-            System.Array.Copy(path2, 1, path, path1.Length, path2.Length-1);
-            return path;
+            Vector3[] path1; Vector3[] path2;
+            float l1 = ComputeRASOfStraightLine(init, middle_conf, clockwise, prof_max - 1, out path1);
+            float l2 = ComputeRASOfStraightLine(middle_conf, target, clockwise, prof_max - 1, out path2);
+            out_path = new Vector3[path1.Length + path2.Length - 1];
+            System.Array.Copy(path1, out_path, path1.Length);
+            System.Array.Copy(path2, 1, out_path, path1.Length, path2.Length-1);
+            return l1 + l2;
         }
+    }
+
+    Vector3[] optimizePath(Vector3[] p)
+    {
+        Vector3[] res = new Vector3[p.Length];
+        res[0] = p[0];
+        res[p.Length - 1] = p[p.Length - 1];
+        for (int i = 1; i < p.Length - 1; i++)
+        {
+            CostFunc cost = (v => 
+            ComputeRASOfStraightLine(res[i-1],v, 5) + ComputeRASOfStraightLine(v, p[i+1], 5)
+            );
+            res[i] = optimizePoint(p[i], cost);
+        }
+        return res;
+    }
+
+    delegate float CostFunc(Vector3 conf);
+    const float delta = 0.5f;
+    const float angle_delta = 45f;
+    Vector3 optimizePoint(Vector3 conf, CostFunc cost)
+    {
+        // Compute all possible adjacent conf to test
+        Vector3[] possibilities = new Vector3[] { conf + new Vector3(delta, 0, 0), conf + new Vector3(-delta, 0, 0),
+        conf + new Vector3(0, delta, 0), conf + new Vector3(0, -delta, 0) };
+        List<Vector3> all_pos = new List<Vector3>();
+        int nb = (int)(360 / angle_delta);
+        foreach (Vector3 v in possibilities)
+        {
+            for (int i = 0; i < nb; i++)
+            {
+                float angle = CarController.normalizeAngle(v.z + i*angle_delta);
+                all_pos.Add(new Vector3(v.x, v.y, angle));
+            }
+        }
+        // Remove those in collision
+        all_pos.RemoveAll((c => phy.configurationInCollision(c)));
+        // Compute best position
+        float current = cost(conf);
+        float min = current;
+        Vector3? min_conf = null;
+        foreach (Vector3 v in all_pos)
+        {
+            float c = cost(v);
+            if (c < min)
+            {
+                min = c;
+                min_conf = v;
+            }
+        }
+        if (min_conf.HasValue)
+            return optimizePoint(min_conf.Value, cost);
+        return conf;
     }
 
     struct Link
@@ -123,7 +190,7 @@ public class CarAI : MonoBehaviour {
         Please configure the random generation of configurations before calling this function (or you can use FindPath instead).
         ALGO:
         We draw a point:
-          - If it connects two connected component together, we keep it
+          - If it connects two connected components together, we keep it
           - If it is not reachable from any previous configuration, we keep it
           - Otherwise we ignore it
           - We can also accept a point that do not respect any of the conditions after a certain number of consecutive rejections
@@ -266,22 +333,7 @@ public class CarAI : MonoBehaviour {
 
         return null;
     }
-    void SimplifyPath(Vector3[] p)
-    {
-        // TODO : Real simplification
-        // For example : keep away conf from the obstacles by growing the car and see where the collision is. We do this until the move become impossible.
-        for (int i = 1; i < p.Length - 1; i++)
-        {
-            // Optimisation : adapt the rotation of the target to a more natural one
-            Vector3 orientation = CarController.spatialCoordOfConfiguration(p[i+1]) - CarController.spatialCoordOfConfiguration(p[i-1]);
-            float angle = Vector3.Angle(new Vector3(0, 0, 1), orientation);
-            if (orientation.x < 0)
-                angle = 360 - angle;
-            Vector3 new_target = new Vector3(p[i].x, p[i].y, angle);
-            if (phy.moveAllowed(p[i - 1], new_target) && phy.moveAllowed(new_target, p[i + 1]))
-                p[i] = new_target;
-        }
-    }
+
 
     int[] random_allowed_angles = null;
     Vector3 DrawConfiguration()
