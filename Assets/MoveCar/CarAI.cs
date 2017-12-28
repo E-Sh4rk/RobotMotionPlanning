@@ -52,7 +52,7 @@ public class CarAI : MonoBehaviour {
                 for (int i = 1; i < mc_path.Length; i++)
                 {
                     Vector3[] p;
-                    ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], 10, out p);
+                    ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], 7, out p);
                     path.AddRange(p);
                 }
 
