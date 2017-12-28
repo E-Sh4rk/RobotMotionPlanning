@@ -46,17 +46,7 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                Vector3[] mc_path = optimizePath(path.ToArray());
-                path = new List<Vector3>();
-
-                for (int i = 1; i < mc_path.Length; i++)
-                {
-                    Vector3[] p;
-                    ComputeRASOfStraightLine(mc_path[i-1], mc_path[i], 7, out p);
-                    path.AddRange(p);
-                }
-
-                save_targets = path.ToArray();
+                ComputeOptimizedRAS(path.ToArray(), 7, 1, out save_targets);
                 targets.AddRange(save_targets);
             }
             else
@@ -73,16 +63,7 @@ public class CarAI : MonoBehaviour {
             targets.AddRange(save_targets);
     }
 
-    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, int prof_max)
-    {
-        Vector3[] p;
-        return ComputeRASOfStraightLine(init, target, phy.clockwisePreferedForMove(init, target), prof_max, out p);
-    }
-    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, int prof_max, out Vector3[] out_path)
-    {
-        return ComputeRASOfStraightLine(init, target, phy.clockwisePreferedForMove(init, target), prof_max, out out_path);
-    }
-    float ComputeRASOfStraightLine(Vector3 init, Vector3 target, bool clockwise, int prof_max, out Vector3[] out_path)
+    float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, int opti_prox_max, out Vector3[] out_path)
     {
         if (prof_max < 0)
         {
@@ -96,36 +77,50 @@ public class CarAI : MonoBehaviour {
             return l;
         else
         {
-            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise)/2;
-            Vector3[] path1; Vector3[] path2;
-            float l1 = ComputeRASOfStraightLine(init, middle_conf, clockwise, prof_max - 1, out path1);
-            float l2 = ComputeRASOfStraightLine(middle_conf, target, clockwise, prof_max - 1, out path2);
-            out_path = new Vector3[path1.Length + path2.Length - 1];
-            System.Array.Copy(path1, out_path, path1.Length);
-            System.Array.Copy(path2, 1, out_path, path1.Length, path2.Length-1);
-            return l1 + l2;
+            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, phy.clockwisePreferedForMove(init, target)) /2;
+            return ComputeOptimizedRAS(new Vector3[] { init, middle_conf, target }, prof_max - 1, opti_prox_max - 1, out out_path);
         }
     }
 
-    Vector3[] optimizePath(Vector3[] p)
+    float ComputeOptimizedRAS(Vector3[] p, int prof_max, int opti_prof_max, out Vector3[] opt_path)
     {
-        Vector3[] res = new Vector3[p.Length];
-        res[0] = p[0];
-        res[p.Length - 1] = p[p.Length - 1];
-        for (int i = 1; i < p.Length - 1; i++)
+        List<Vector3> path = new List<Vector3>();
+        path.Add(p[0]);
+        Vector3 current = p[0];
+        float len = 0;
+        Vector3[] tmp;
+        for (int i = 1; i < p.Length-1; i++)
         {
-            CostFunc cost = (v => 
-            ComputeRASOfStraightLine(res[i-1],v, 5) + ComputeRASOfStraightLine(v, p[i+1], 5)
-            );
-            res[i] = optimizePoint(p[i], cost);
+            if (opti_prof_max <= 0)
+            {
+                // No point optimization
+                len += OptimizedRASofLine(current, p[i], prof_max, opti_prof_max, out tmp);
+            }
+            else
+            {
+                // Point optimization
+                CostFunc cost = (Vector3 v, out Vector3[] output) =>
+                {
+                    Vector3[] devnull;
+                    return OptimizedRASofLine(current, v, prof_max, opti_prof_max, out output) + OptimizedRASofLine(v, p[i + 1], prof_max, opti_prof_max, out devnull);
+                };
+                len += optimizePoint(p[i], cost, out tmp);
+            }
+            for (int j = 1; j < tmp.Length; j++)
+                path.Add(tmp[j]);
+            current = tmp[tmp.Length - 1];
         }
-        return res;
+        len += OptimizedRASofLine(current, p[p.Length-1], prof_max, opti_prof_max, out tmp);
+        for (int j = 1; j < tmp.Length; j++)
+            path.Add(tmp[j]);
+        opt_path = path.ToArray();
+        return len;
     }
 
-    delegate float CostFunc(Vector3 conf);
+    delegate float CostFunc(Vector3 conf, out Vector3[] wit);
     const float delta = 0.5f;
     const float angle_delta = 45f;
-    Vector3 optimizePoint(Vector3 conf, CostFunc cost)
+    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3[] value)
     {
         // Compute all possible adjacent conf to test
         Vector3[] possibilities = new Vector3[] { conf + new Vector3(delta, 0, 0), conf + new Vector3(-delta, 0, 0),
@@ -143,21 +138,25 @@ public class CarAI : MonoBehaviour {
         // Remove those in collision
         all_pos.RemoveAll((c => phy.configurationInCollision(c)));
         // Compute best position
-        float current = cost(conf);
+        Vector3[] min_value = null;
+        float current = cost(conf, out min_value);
         float min = current;
         Vector3? min_conf = null;
         foreach (Vector3 v in all_pos)
         {
-            float c = cost(v);
+            Vector3[] tmp;
+            float c = cost(v, out tmp);
             if (c < min)
             {
                 min = c;
                 min_conf = v;
+                min_value = tmp;
             }
         }
         if (min_conf.HasValue)
-            return optimizePoint(min_conf.Value, cost);
-        return conf;
+            return optimizePoint(min_conf.Value, cost, out value);
+        value = min_value;
+        return min;
     }
 
     struct Link
