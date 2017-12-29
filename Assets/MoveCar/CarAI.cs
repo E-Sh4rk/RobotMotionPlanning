@@ -6,7 +6,10 @@ using UnityEngine.SceneManagement;
 public class CarAI : MonoBehaviour {
 
     public int maxPointsMonteCarlo = 2000;
+    public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
+    public int rasMaxDepth = 7;
+    public float radius = 5;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -19,7 +22,24 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
-        ras = new ReedAndShepp.ReedAndShepp(5, Application.streamingAssetsPath);
+        ras = new ReedAndShepp.ReedAndShepp(radius, Application.streamingAssetsPath);
+
+        retry();
+    }
+    Vector3[] save_targets = null;
+
+    public void replay()
+    {
+        finished = false;
+        controller.setConfiguration(ConfigInfos.initialConf);
+        if (save_targets != null)
+            targets.AddRange(save_targets);
+    }
+
+    public void retry()
+    {
+        finished = false;
+        controller.setConfiguration(ConfigInfos.initialConf);
 
         controller.setConfiguration(ConfigInfos.initialConf);
 
@@ -46,21 +66,14 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                ComputeOptimizedRAS(path.ToArray(), 7, true, 7, out save_targets);
-                targets.AddRange(save_targets);
+                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, true, rasMaxDepth, out save_targets) >= Mathf.Infinity)
+                    Debug.Log("R&S depth exceeded !");
+                else
+                    targets.AddRange(save_targets);
             }
             else
                 save_targets = null;
         }
-    }
-    Vector3[] save_targets = null;
-
-    public void replay()
-    {
-        finished = false;
-        controller.setConfiguration(ConfigInfos.initialConf);
-        if (save_targets != null)
-            targets.AddRange(save_targets);
     }
 
     float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, bool approx_cost, int opti_prox_max, out Vector3[] out_path)
@@ -128,29 +141,36 @@ public class CarAI : MonoBehaviour {
     }
 
     delegate float CostFunc(Vector3 conf, out Vector3[] wit);
-    const float delta = 0.5f;
-    const float angle_delta = 45f;
+    /*const*/ static float delta = 0.5f;
+    /*const*/ static float angle_delta = 30f;
+    /*const*/ static bool test_all_angles_in_one_iteration = false;
     float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value)
     {
-        // Compute all possible adjacent conf to test
-        Vector3[] possibilities = new Vector3[] { conf + new Vector3(delta, 0, 0), conf + new Vector3(-delta, 0, 0),
+        // Compute all possible adjacent conf
+        Vector3[] r2_pos = new Vector3[] { conf + new Vector3(delta, 0, 0), conf + new Vector3(-delta, 0, 0),
         conf + new Vector3(0, delta, 0), conf + new Vector3(0, -delta, 0) };
-        List<Vector3> all_pos = new List<Vector3>();
-        int nb = (int)(360 / angle_delta);
-        foreach (Vector3 v in possibilities)
+        List<Vector3> all_pos = new List<Vector3>(r2_pos);
+        if (test_all_angles_in_one_iteration)
         {
-            for (int i = 0; i < nb; i++)
+            int nb = Mathf.CeilToInt(360 / angle_delta);
+            for (int i = 1; i < nb; i++)
             {
-                float angle = CarController.normalizeAngle(v.z + i*angle_delta);
-                all_pos.Add(new Vector3(v.x, v.y, angle));
+                float angle = CarController.normalizeAngle(conf.z + i * angle_delta);
+                all_pos.Add(new Vector3(conf.x, conf.y, angle));
             }
+        }
+        else
+        {
+            float angle = CarController.normalizeAngle(conf.z + angle_delta);
+            all_pos.Add(new Vector3(conf.x, conf.y, angle));
+            angle = CarController.normalizeAngle(conf.z - angle_delta);
+            all_pos.Add(new Vector3(conf.x, conf.y, angle));
         }
         // Remove those in collision
         all_pos.RemoveAll((c => phy.configurationInCollision(c)));
         // Compute best position
         Vector3[] min_value = null;
-        float current = cost(conf, out min_value);
-        float min = current;
+        float min = cost(conf, out min_value);
         Vector3? min_conf = null;
         foreach (Vector3 v in all_pos)
         {
@@ -225,7 +245,7 @@ public class CarAI : MonoBehaviour {
         int i = 0;
         int cons_rejections = 0;
         Dictionary<Vector3, bool> tmp_dico = new Dictionary<Vector3, bool>();
-        while (components.Find(pts[0]).value != components.Find(pts[1]).value)
+        while (components.Find(pts[0]).value != components.Find(pts[1]).value || i < minPointsMonteCarlo)
         {
             if (i >= maxPointsMonteCarlo)
                 return null;

@@ -15,6 +15,8 @@ public class GUI2 : MonoBehaviour {
                 SceneManager.LoadScene(0);
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 75, 100, 25), "Replay"))
                 car.GetComponent<CarAI>().replay();
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 125, 100, 25), "Retry"))
+                car.GetComponent<CarAI>().retry();
         }
     }
 
