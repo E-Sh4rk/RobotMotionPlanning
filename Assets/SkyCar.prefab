@@ -988,3 +988,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pivotPoint: {fileID: 1380140225755266}
+  wheels:
+  - {fileID: 1058337858035832}
+  - {fileID: 1750889780898034}
+  - {fileID: 1352160389838350}
+  - {fileID: 1887758907066610}
+  radius: 5

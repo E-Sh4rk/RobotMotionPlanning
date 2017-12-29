@@ -5,10 +5,24 @@ using UnityEngine;
 public class CarController : MonoBehaviour {
 
     public GameObject pivotPoint;
+    public GameObject[] wheels;
+    public float radius = 5;
 
-	// Use this for initialization
-	void Start () {
-
+    Vector3 wheelsMeanPos;
+    float wheelsAngle;
+    // Use this for initialization
+    void Start () {
+        wheelsMeanPos = Vector3.zero;
+        wheelsAngle = 0;
+        if (wheels.Length > 0)
+        {
+            foreach (GameObject go in wheels)
+                wheelsMeanPos += go.transform.localPosition;
+            wheelsMeanPos /= wheels.Length;
+            wheelsAngle = (pivotPoint.transform.localPosition - wheelsMeanPos).magnitude;
+            wheelsAngle /= 2 * radius;
+            wheelsAngle = Mathf.Acos(wheelsAngle) * Mathf.Rad2Deg - 90;
+        }
     }
 
     // CONFIGURATIONS
@@ -91,19 +105,42 @@ public class CarController : MonoBehaviour {
         setConfiguration(cfg);
     }
 
+    public void setWheelsAngle(float angle)
+    {
+        foreach (GameObject go in wheels)
+            go.transform.localEulerAngles = Vector3.up * angle;
+    }
+
     // MOVEMENTS
     Vector3? target = null;
     float remainingTime = 0f;
     bool clockwise = false;
     public void MoveStraigthTo(Vector3 newConf, bool clockwise, float time)
     {
+        Vector3 current = getConfiguration();
+        if (Mathf.Abs(normalizeAngle(current.z)-normalizeAngle(newConf.z)) <= 0.01f)
+            setWheelsAngle(0);
+        else
+        {
+            bool backward = false;
+            Vector3 spat_diff = spatialCoordOfConfiguration(computeDiffVector(current, newConf, clockwise));
+            Vector3 current_vec = Quaternion.Euler(0, current.z, 0) * Vector3.forward;
+            if (Vector3.Dot(spat_diff, current_vec) < 0)
+                backward = true;
+
+            if (clockwise == backward)
+                setWheelsAngle(wheelsAngle);
+            else
+                setWheelsAngle(-wheelsAngle);
+        }
+
         target = newConf;
         this.clockwise = clockwise;
         remainingTime = time;
     }
     public void MoveStraigthTo(Vector3 newConf, bool clockwise)
     {
-        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(computeDiffVector(getConfiguration(), newConf, clockwise)) * 0.1f);
+        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(computeDiffVector(getConfiguration(), newConf, clockwise)) * 0.25f);
     }
     public bool MoveFinished()
     {

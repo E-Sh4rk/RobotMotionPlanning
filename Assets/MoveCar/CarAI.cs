@@ -9,7 +9,6 @@ public class CarAI : MonoBehaviour {
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
     public int rasMaxDepth = 7;
-    public float radius = 5;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -22,7 +21,7 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
-        ras = new ReedAndShepp.ReedAndShepp(radius, Application.streamingAssetsPath);
+        ras = new ReedAndShepp.ReedAndShepp(controller.radius, Application.streamingAssetsPath);
 
         retry();
     }
