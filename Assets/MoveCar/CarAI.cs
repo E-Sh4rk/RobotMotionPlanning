@@ -77,11 +77,19 @@ public class CarAI : MonoBehaviour {
 
     float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, bool approx_cost, int opti_prox_max, out Vector3[] out_path)
     {
+        // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
         if (prof_max < 0)
         {
             out_path = new Vector3[] { init, target };
             return Mathf.Infinity;
         }
+        bool clockwise = phy.clockwisePreferedForMove(init, target);
+        if (!phy.moveAllowed(init, target, clockwise))
+        {
+            out_path = new Vector3[] { init, target };
+            return Mathf.Infinity;
+        }
+        // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
         float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
         out_path = Misc.RSPathToUnityPath(ras_path);
@@ -89,7 +97,7 @@ public class CarAI : MonoBehaviour {
             return l;
         else
         {
-            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, phy.clockwisePreferedForMove(init, target)) /2;
+            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise) /2;
             return ComputeOptimizedRAS(new Vector3[] { init, middle_conf, target }, prof_max - 1, approx_cost, opti_prox_max - 1, out out_path);
         }
     }
