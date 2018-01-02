@@ -21,7 +21,15 @@ public class CarAI : MonoBehaviour {
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
         bounds = new Bounds(b.center, new Vector3(b.size.x, Mathf.Infinity, b.size.z));
-        ras = new ReedAndShepp.ReedAndShepp(controller.radius, Application.streamingAssetsPath);
+        try
+        {
+            ReedAndShepp.ReedAndShepp.SetDllFolder(Application.streamingAssetsPath);
+            ras = new ReedAndShepp.ReedAndShepp(controller.radius);
+        }
+        catch
+        {
+            Debug.Log("Error while initializing R&S module !");
+        }
 
         retry();
     }
@@ -37,6 +45,8 @@ public class CarAI : MonoBehaviour {
 
     public void retry()
     {
+        if (ras == null)
+            return;
         finished = false;
         controller.setConfiguration(ConfigInfos.initialConf);
 
