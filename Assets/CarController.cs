@@ -36,7 +36,9 @@ public class CarController : MonoBehaviour {
     public void setPosition(Vector2 pos)
     {
         Vector3 p = new Vector3(pos.x, 0, pos.y);
-        transform.position = p - (pivotPoint.transform.position - transform.position);
+        var t = p - (pivotPoint.transform.position - transform.position);
+        t.y = 0;
+        transform.position = t;
     }
     public void setConfiguration(Vector3 conf)
     {

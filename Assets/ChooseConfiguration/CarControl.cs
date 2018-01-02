@@ -33,6 +33,7 @@ public class CarControl : MonoBehaviour {
         if (Physics.Raycast(ray, out rh, Mathf.Infinity, layerMask))
         {
             Vector3 pt = rh.point;
+            pt.y = 0;
             //pt.y += GetComponent<Collider>().bounds.size.y/2;
             transform.position = pt;
         }

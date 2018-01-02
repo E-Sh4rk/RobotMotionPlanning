@@ -405,10 +405,12 @@ public class CarAI : MonoBehaviour {
     // Update is called once per frame
     List<Vector3> targets = new List<Vector3>();
     void Update () {
+        /* Not show collision
         if (phy.currentlyInCollision())
             controller.changeColor(Color.red);
         else
             controller.changeColor(Color.green);
+            */
 
         if (controller.MoveFinished())
         {
