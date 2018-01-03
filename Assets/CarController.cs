@@ -96,8 +96,13 @@ public class CarController : MonoBehaviour {
     public void setVisible(bool visible)
     {
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        Light[] lights = GetComponentsInChildren<Light>();
+
         foreach (Renderer r in renderers)
             r.enabled = visible;
+
+        foreach (Light l in lights)
+            l.enabled = visible;
     }
 
     public void setGlobalScale(float sx, float sy, float sz)
