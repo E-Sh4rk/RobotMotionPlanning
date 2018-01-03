@@ -326,8 +326,8 @@ GameObject:
   - component: {fileID: 95629998500851910}
   - component: {fileID: 54062138319945854}
   - component: {fileID: 65578590940053834}
-  - component: {fileID: 114534263667659274}
   - component: {fileID: 114823403171551526}
+  - component: {fileID: 114270662034266624}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -2298,7 +2298,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114534263667659274
+--- !u!114 &114270662034266624
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -2306,15 +2306,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1610265466720824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 423b510a30086a7408a9f25debb918f0, type: 3}
+  m_Script: {fileID: 11500000, guid: 711eb4df7772640488c5cc6afdb77a54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  active: 0
-  next: {fileID: 0}
-  prev: {fileID: 0}
-  angle_velocity: 100
-  cameraObj: {fileID: 0}
-  initial_color: {r: 0.6965513, g: 0, b: 1, a: 0}
+  resolution: 3
 --- !u!114 &114823403171551526
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2330,6 +2325,4 @@ MonoBehaviour:
   wheels:
   - {fileID: 1132656779480422}
   - {fileID: 1977516303058092}
-  - {fileID: 1188388582976854}
-  - {fileID: 1311625568297806}
   radius: 5

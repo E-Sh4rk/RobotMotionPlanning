@@ -277,7 +277,7 @@ public class CarAI : MonoBehaviour {
                     if (components_linked.Contains(components.Find(v).value))
                         continue;
                     bool linked = phy.moveAllowed(v, pt);
-                    tmp_dico.Add(v, linked);
+                    tmp_dico[v] = linked;
                     if (linked)
                     {
                         reachable = true;
@@ -300,7 +300,7 @@ public class CarAI : MonoBehaviour {
                         }
                         if (linked)
                             Debug.DrawLine(CarController.spatialCoordOfConfiguration(v), CarController.spatialCoordOfConfiguration(pt), Color.red, 5f);
-                        dico.Add(new Link(v, pt), linked ? distanceBetweenConf(v, pt) : Mathf.Infinity);
+                        dico[new Link(v, pt)] = linked ? distanceBetweenConf(v, pt) : Mathf.Infinity;
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
@@ -410,7 +410,7 @@ public class CarAI : MonoBehaviour {
             controller.changeColor(Color.red);
         else
             controller.changeColor(Color.green);
-            */
+        */
 
         if (controller.MoveFinished())
         {

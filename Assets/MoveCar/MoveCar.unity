@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44057387, g: 0.48920184, b: 0.56934613, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -214,13 +214,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 558393432}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 2.66, y: 14.23, z: 0}
+  m_LocalRotation: {x: 0.73508286, y: -0.25881103, z: 0.0020162242, w: 0.62663066}
+  m_LocalPosition: {x: -0.38, y: 14.23, z: 1.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 67.264, y: -123.739006, z: -102.053}
 --- !u!1001 &562835517
 Prefab:
   m_ObjectHideFlags: 0
@@ -319,13 +319,7 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: radius
-      value: 5
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 114534263667659274, guid: 02e641040fb499c49a848e40f535164a, type: 2}
+    m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02e641040fb499c49a848e40f535164a, type: 2}
   m_IsPrefabParent: 0
 --- !u!1 &896665581 stripped
@@ -334,18 +328,6 @@ GameObject:
     type: 2}
   m_PrefabInternal: {fileID: 591580971}
 --- !u!114 &896665582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 896665581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 711eb4df7772640488c5cc6afdb77a54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resolution: 3
---- !u!114 &896665583
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
