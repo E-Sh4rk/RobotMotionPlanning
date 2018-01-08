@@ -595,8 +595,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1610265466720824}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.1, y: 0, z: -3.28}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -7.21, y: 0, z: -3.18}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 4105170742278436}
@@ -2384,7 +2384,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -2420,7 +2420,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -2442,12 +2442,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 423b510a30086a7408a9f25debb918f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   next: {fileID: 0}
   prev: {fileID: 0}
   angle_velocity: 100
   cameraObj: {fileID: 0}
-  initial_color: {r: 0.65517235, g: 0, b: 1, a: 0}
+  initial_color: {r: 0, g: 0.91724133, b: 1, a: 0}
 --- !u!114 &114270662034266624
 MonoBehaviour:
   m_ObjectHideFlags: 1

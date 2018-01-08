@@ -157,14 +157,6 @@ Prefab:
       propertyPath: m_Name
       value: Tocus1
       objectReference: {fileID: 0}
-    - target: {fileID: 0}
-      propertyPath: next
-      value: 
-      objectReference: {fileID: 943858288}
-    - target: {fileID: 0}
-      propertyPath: cameraObj
-      value: 
-      objectReference: {fileID: 1094008104}
     - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
         type: 2}
       propertyPath: next
@@ -175,41 +167,6 @@ Prefab:
       propertyPath: cameraObj
       value: 
       objectReference: {fileID: 1094008104}
-    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: initial_color.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: initial_color.g
-      value: 0.91724133
-      objectReference: {fileID: 0}
-    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: active
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: m_RenderMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: m_Shadows.m_Type
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: m_BounceIntensity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: m_Range
-      value: 30
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02e641040fb499c49a848e40f535164a, type: 2}
   m_IsPrefabParent: 0
