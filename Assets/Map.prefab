@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33374014606897552}
   - component: {fileID: 23773706576560128}
   - component: {fileID: 65024354806372128}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: parkchair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
