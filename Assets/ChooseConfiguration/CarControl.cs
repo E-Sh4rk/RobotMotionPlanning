@@ -102,14 +102,14 @@ public class CarControl : MonoBehaviour {
             else
                 control.changeColor(Color.green);
 
-            if (!in_collision && Input.GetMouseButtonDown(0))
+            if (!in_collision && (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)))
             {
                 fix = true;
                 control.changeColor(initial_color);
                 switchToNext();
             }
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Backspace))
         {
             if (fix == false)
                 switchToPrev();

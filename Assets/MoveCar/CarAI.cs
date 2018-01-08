@@ -160,7 +160,7 @@ public class CarAI : MonoBehaviour {
     delegate float CostFunc(Vector3 conf, out Vector3[] wit);
     /*const*/ static float delta = 0.5f;
     /*const*/ static float angle_delta = 30f;
-    /*const*/ static bool test_all_angles_in_one_iteration = false;
+    /*const*/ static bool test_all_angles_in_one_iteration = true;
     float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value)
     {
         // Compute all possible adjacent conf
