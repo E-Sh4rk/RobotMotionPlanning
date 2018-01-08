@@ -10,10 +10,14 @@ public class CarController : MonoBehaviour {
 
     Vector3 wheelsMeanPos;
     float wheelsAngle;
+    bool backward;
+
     // Use this for initialization
     void Start () {
         wheelsMeanPos = Vector3.zero;
         wheelsAngle = 0;
+        backward = false;
+
         if (wheels.Length > 0)
         {
             foreach (GameObject go in wheels)
@@ -125,16 +129,20 @@ public class CarController : MonoBehaviour {
     public void MoveStraigthTo(Vector3 newConf, bool clockwise, float time)
     {
         Vector3 current = getConfiguration();
+
+        backward = false;
+
+        Vector3 spat_diff = spatialCoordOfConfiguration(computeDiffVector(current, newConf, clockwise));
+        Vector3 current_vec = Quaternion.Euler(0, current.z, 0) * Vector3.forward;
+
+        if (Vector3.Dot(spat_diff, current_vec) < 0)
+            backward = true;
+
         if (Mathf.Abs(normalizeAngle(current.z)-normalizeAngle(newConf.z)) <= 0.01f)
             setWheelsAngle(0);
+
         else
         {
-            bool backward = false;
-            Vector3 spat_diff = spatialCoordOfConfiguration(computeDiffVector(current, newConf, clockwise));
-            Vector3 current_vec = Quaternion.Euler(0, current.z, 0) * Vector3.forward;
-            if (Vector3.Dot(spat_diff, current_vec) < 0)
-                backward = true;
-
             if (clockwise == backward)
                 setWheelsAngle(wheelsAngle);
             else
@@ -162,7 +170,21 @@ public class CarController : MonoBehaviour {
             Vector3 diff = computeDiffVector(current, target.Value, clockwise);
             Vector3 new_conf = target.Value;
             if (Time.fixedDeltaTime < remainingTime)
-                new_conf = current + diff * (Time.fixedDeltaTime/remainingTime);
+            {
+                new_conf = current + diff * (Time.fixedDeltaTime / remainingTime);
+
+                float rotationVelocity = 0.07f;
+                if (this.backward)
+                    rotationVelocity *= -1;
+
+                foreach (var w in wheels)
+                {
+                    w.transform.localRotation = new Quaternion(w.transform.localRotation.x+rotationVelocity,
+                                           w.transform.localRotation.y,
+                                           w.transform.localRotation.z,
+                                           w.transform.localRotation.w);
+                }
+            }
             setConfiguration(new_conf);
 
             remainingTime -= Time.fixedDeltaTime;
