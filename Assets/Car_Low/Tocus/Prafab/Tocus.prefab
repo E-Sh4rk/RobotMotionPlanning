@@ -344,7 +344,6 @@ GameObject:
   - component: {fileID: 65578590940053834}
   - component: {fileID: 114823403171551526}
   - component: {fileID: 114270662034266624}
-  - component: {fileID: 114084511082457592}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -2431,23 +2430,6 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &114084511082457592
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1610265466720824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 423b510a30086a7408a9f25debb918f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  active: 0
-  next: {fileID: 0}
-  prev: {fileID: 0}
-  angle_velocity: 100
-  cameraObj: {fileID: 0}
-  initial_color: {r: 0.65517235, g: 0, b: 1, a: 0}
 --- !u!114 &114270662034266624
 MonoBehaviour:
   m_ObjectHideFlags: 1
