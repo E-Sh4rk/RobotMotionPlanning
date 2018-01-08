@@ -6,11 +6,13 @@ public class CarController : MonoBehaviour {
 
     public GameObject pivotPoint;
     public GameObject[] wheels;
+    public GameObject[] allWheels;
     public float radius = 5;
 
     Vector3 wheelsMeanPos;
     float wheelsAngle;
     bool backward;
+
 
     // Use this for initialization
     void Start () {
@@ -138,9 +140,8 @@ public class CarController : MonoBehaviour {
         if (Vector3.Dot(spat_diff, current_vec) < 0)
             backward = true;
 
-        if (Mathf.Abs(normalizeAngle(current.z)-normalizeAngle(newConf.z)) <= 0.01f)
+        if (Mathf.Abs(normalizeAngle(current.z) - normalizeAngle(newConf.z)) <= 0.01f)
             setWheelsAngle(0);
-
         else
         {
             if (clockwise == backward)
@@ -148,7 +149,7 @@ public class CarController : MonoBehaviour {
             else
                 setWheelsAngle(-wheelsAngle);
         }
-
+        
         target = newConf;
         this.clockwise = clockwise;
         remainingTime = time;
@@ -173,18 +174,18 @@ public class CarController : MonoBehaviour {
             {
                 new_conf = current + diff * (Time.fixedDeltaTime / remainingTime);
 
-                float rotationVelocity = 0.07f;
+                float rotationVelocity = 7f;
                 if (this.backward)
                     rotationVelocity *= -1;
+                Debug.Log(allWheels.Length);
 
-                foreach (var w in wheels)
+                foreach (var w in allWheels)
                 {
-                    w.transform.localRotation = new Quaternion(w.transform.localRotation.x+rotationVelocity,
-                                           w.transform.localRotation.y,
-                                           w.transform.localRotation.z,
-                                           w.transform.localRotation.w);
+                    w.transform.Rotate(Vector3.right, rotationVelocity, Space.Self);
                 }
+
             }
+
             setConfiguration(new_conf);
 
             remainingTime -= Time.fixedDeltaTime;
