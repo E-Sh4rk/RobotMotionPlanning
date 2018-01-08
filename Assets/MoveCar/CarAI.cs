@@ -158,11 +158,25 @@ public class CarAI : MonoBehaviour {
     }
 
     delegate float CostFunc(Vector3 conf, out Vector3[] wit);
-    /*const*/ static float delta = 0.5f;
-    /*const*/ static float angle_delta = 30f;
-    /*const*/ static bool test_all_angles_in_one_iteration = true;
-    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value)
+    const float delta = 0.5f;
+    const float angle_delta = 30f;
+    const bool test_all_angles_in_one_iteration = true;
+    const bool use_directly_small_adjust = false;
+    const float small_delta = 0.1f;
+    const float small_angle_delta = 5f;
+    const bool small_test_all_angles_in_one_iteration = false;
+    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value, bool smallAdjust = use_directly_small_adjust)
     {
+        float delta = CarAI.delta;
+        float angle_delta = CarAI.angle_delta;
+        bool test_all_angles_in_one_iteration = CarAI.test_all_angles_in_one_iteration;
+        if (smallAdjust)
+        {
+            delta = CarAI.small_delta;
+            angle_delta = CarAI.small_angle_delta;
+            test_all_angles_in_one_iteration = CarAI.small_test_all_angles_in_one_iteration;
+        }
+
         // Compute all possible adjacent conf
         Vector3[] r2_pos = new Vector3[] { conf + new Vector3(delta, 0, 0), conf + new Vector3(-delta, 0, 0),
         conf + new Vector3(0, delta, 0), conf + new Vector3(0, -delta, 0) };
@@ -201,7 +215,9 @@ public class CarAI : MonoBehaviour {
             }
         }
         if (min_conf.HasValue)
-            return optimizePoint(min_conf.Value, cost, out conf_min, out value);
+            return optimizePoint(min_conf.Value, cost, out conf_min, out value, smallAdjust);
+        if (!smallAdjust)
+            return optimizePoint(conf, cost, out conf_min, out value, true);
         value = min_value;
         conf_min = conf;
         return min;
