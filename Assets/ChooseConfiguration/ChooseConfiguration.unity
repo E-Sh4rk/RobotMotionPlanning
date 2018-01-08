@@ -157,6 +157,14 @@ Prefab:
       propertyPath: m_Name
       value: Tocus1
       objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: next
+      value: 
+      objectReference: {fileID: 943858288}
+    - target: {fileID: 0}
+      propertyPath: cameraObj
+      value: 
+      objectReference: {fileID: 1094008104}
     - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
         type: 2}
       propertyPath: next
@@ -167,6 +175,41 @@ Prefab:
       propertyPath: cameraObj
       value: 
       objectReference: {fileID: 1094008104}
+    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: initial_color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: initial_color.g
+      value: 0.91724133
+      objectReference: {fileID: 0}
+    - target: {fileID: 114084511082457592, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: active
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: m_RenderMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: m_Shadows.m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: m_BounceIntensity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 108379469996655340, guid: 02e641040fb499c49a848e40f535164a,
+        type: 2}
+      propertyPath: m_Range
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02e641040fb499c49a848e40f535164a, type: 2}
   m_IsPrefabParent: 0
@@ -268,7 +311,7 @@ MonoBehaviour:
   prev: {fileID: 1250258985}
   angle_velocity: 100
   cameraObj: {fileID: 1094008104}
-  initial_color: {r: 0, g: 0, b: 0, a: 0}
+  initial_color: {r: 0.97794116, g: 0.5509597, b: 0.09347964, a: 0}
 --- !u!1 &1094008104 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1226142933280038, guid: a2575cd283b278c47baf2d24ce688595,
@@ -421,7 +464,7 @@ MonoBehaviour:
   prev: {fileID: 0}
   angle_velocity: 100
   cameraObj: {fileID: 1094008104}
-  initial_color: {r: 0, g: 0, b: 0, a: 0}
+  initial_color: {r: 0.020923464, g: 0.33439043, b: 0.9485294, a: 0}
 --- !u!1001 &1806833871
 Prefab:
   m_ObjectHideFlags: 0
