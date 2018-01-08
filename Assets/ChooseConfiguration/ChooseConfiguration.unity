@@ -277,7 +277,7 @@ Prefab:
     - target: {fileID: 20899492551728140, guid: a2575cd283b278c47baf2d24ce688595,
         type: 2}
       propertyPath: field of view
-      value: 20.794325
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 4283323545842524, guid: a2575cd283b278c47baf2d24ce688595, type: 2}
       propertyPath: m_LocalScale.y

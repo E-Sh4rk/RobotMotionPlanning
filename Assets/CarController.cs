@@ -177,7 +177,6 @@ public class CarController : MonoBehaviour {
                 float rotationVelocity = 7f;
                 if (this.backward)
                     rotationVelocity *= -1;
-                Debug.Log(allWheels.Length);
 
                 foreach (var w in allWheels)
                 {
