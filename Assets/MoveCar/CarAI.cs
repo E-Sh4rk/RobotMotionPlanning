@@ -134,8 +134,8 @@ public class CarAI : MonoBehaviour {
                 {
                     Vector3[] devnull;
                     if (approx_cost)
-                        return OptimizedRASofLine(current, v, prof_max, approx_cost, 0, out output)
-                        + OptimizedRASofLine(v, p[i + 1], prof_max, approx_cost, 0, out devnull);
+                        return OptimizedRASofLine(current, v, prof_max, approx_cost, /*0*/Mathf.Min(1, opti_prof_max), out output) // TODO: parametrize approx
+                        + OptimizedRASofLine(v, p[i + 1], prof_max, approx_cost, /*0*/Mathf.Min(1, opti_prof_max), out devnull); // TODO: Fix the issue on the example
                     else
                         return OptimizedRASofLine(current, v, prof_max, approx_cost, opti_prof_max, out output)
                         + OptimizedRASofLine(v, p[i + 1], prof_max, approx_cost, opti_prof_max, out devnull);
@@ -272,6 +272,7 @@ public class CarAI : MonoBehaviour {
         if (phy.moveAllowed(pts[0], pts[1]))
         {
             dico.Add(new Link(pts[0], pts[1]), distanceBetweenConf(pts[0],pts[1]));
+            Debug.DrawLine(CarController.spatialCoordOfConfiguration(pts[0]), CarController.spatialCoordOfConfiguration(pts[1]), Color.red, 5f);
             components.UnionValues(pts[0], pts[1]);
         }
 
