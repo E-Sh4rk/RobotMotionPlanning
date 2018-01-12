@@ -10,7 +10,7 @@ public class CarAI : MonoBehaviour {
     public int maxConsecutiveRejections = 10;
     public int rasMaxDepth = 7;
     public int rasApproxDepth = 1;
-    public float rasMaxCutsPerUnit = 0.25f;
+    public float rasMaxCutsPerUnit = 0.5f;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -77,7 +77,7 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, rasMaxDepth, out save_targets) >= Mathf.Infinity)
+                if (FindRasPath(path.ToArray(), out save_targets) >= Mathf.Infinity)
                 {
                     Debug.Log("R&S depth exceeded !");
                     save_targets = null;
@@ -91,7 +91,17 @@ public class CarAI : MonoBehaviour {
     }
 
     // TODO : If r&s not found for a line by starting from init, try by starting from target.
+    float FindRasPath(Vector3[] path, out Vector3[] save_targets)
+    {
+        ras_cuts_per_unit = 0;
+        float res = ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets);
+        if (res < Mathf.Infinity)
+            return res;
+        ras_cuts_per_unit = rasMaxCutsPerUnit;
+        return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets);
+    }
 
+    float ras_cuts_per_unit = 0;
     float OptimizedRASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path)
     {
         // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
@@ -115,18 +125,14 @@ public class CarAI : MonoBehaviour {
         else
         {
             Vector3 diff = CarController.computeDiffVector(init, target, clockwise);
-            int maxCuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * rasMaxCutsPerUnit);
-            for (int cuts = 1; cuts <= maxCuts; cuts++)
-            {
-                Vector3[] path = new Vector3[cuts+2];
-                path[0] = init; path[cuts + 1] = target;
-                for (int i = 1; i < cuts+1; i++)
-                    path[i] = init + i*CarController.computeDiffVector(init, target, clockwise) / (cuts+1);
-                float res = ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
-                if (res < Mathf.Infinity)
-                    return res;
-            }
-            return Mathf.Infinity;
+            int nb_cuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * ras_cuts_per_unit);
+            if (nb_cuts < 1) nb_cuts = 1;
+            Vector3[] path = new Vector3[nb_cuts + 2];
+            path[0] = init; path[nb_cuts + 1] = target;
+            for (int i = 1; i < nb_cuts + 1; i++)
+                path[i] = init + i*CarController.computeDiffVector(init, target, clockwise) / (nb_cuts+1);
+            float res = ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
+            return res;
         }
     }
 
