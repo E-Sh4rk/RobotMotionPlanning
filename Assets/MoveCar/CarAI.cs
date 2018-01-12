@@ -75,7 +75,7 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, true, rasMaxDepth, out save_targets) >= Mathf.Infinity)
+                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, 1, rasMaxDepth, out save_targets) >= Mathf.Infinity)
                     Debug.Log("R&S depth exceeded !");
                 else
                     targets.AddRange(save_targets);
@@ -85,7 +85,12 @@ public class CarAI : MonoBehaviour {
         }
     }
 
-    float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, bool approx_cost, int opti_prox_max, out Vector3[] out_path)
+    // TODO: Fix the issue on the example
+    // Ideas :
+    // - Divide into more than 2 parts in Optimized RAS of line
+    // - If OptimizedRAS doesn't work for some point, try to compute the point by starting from the end
+
+    float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, int prof_approx_cost, int opti_prox_max, out Vector3[] out_path)
     {
         // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
         if (prof_max < 0)
@@ -108,11 +113,11 @@ public class CarAI : MonoBehaviour {
         else
         {
             Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise) /2;
-            return ComputeOptimizedRAS(new Vector3[] { init, middle_conf, target }, prof_max - 1, approx_cost, opti_prox_max - 1, out out_path);
+            return ComputeOptimizedRAS(new Vector3[] { init, middle_conf, target }, prof_max - 1, prof_approx_cost, opti_prox_max - 1, out out_path);
         }
     }
 
-    float ComputeOptimizedRAS(Vector3[] p, int prof_max, bool approx_cost, int opti_prof_max, out Vector3[] opt_path)
+    float ComputeOptimizedRAS(Vector3[] p, int prof_max, int prof_approx_cost, int opti_prof_max, out Vector3[] opt_path)
     {
         List<Vector3> path = new List<Vector3>();
         path.Add(p[0]);
@@ -125,7 +130,7 @@ public class CarAI : MonoBehaviour {
             if (opti_prof_max <= 0)
             {
                 // No point optimization
-                len += OptimizedRASofLine(current, p[i], prof_max, approx_cost, opti_prof_max, out tmp_val);
+                len += OptimizedRASofLine(current, p[i], prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
             }
             else
             {
@@ -133,16 +138,12 @@ public class CarAI : MonoBehaviour {
                 CostFunc cost = (Vector3 v, out Vector3[] output) =>
                 {
                     Vector3[] devnull;
-                    if (approx_cost)
-                        return OptimizedRASofLine(current, v, prof_max, approx_cost, /*0*/Mathf.Min(1, opti_prof_max), out output) // TODO: parametrize approx
-                        + OptimizedRASofLine(v, p[i + 1], prof_max, approx_cost, /*0*/Mathf.Min(1, opti_prof_max), out devnull); // TODO: Fix the issue on the example
-                    else
-                        return OptimizedRASofLine(current, v, prof_max, approx_cost, opti_prof_max, out output)
-                        + OptimizedRASofLine(v, p[i + 1], prof_max, approx_cost, opti_prof_max, out devnull);
+                    return OptimizedRASofLine(current, v, prof_max, prof_approx_cost, Mathf.Min(prof_approx_cost, opti_prof_max), out output)
+                    + OptimizedRASofLine(v, p[i + 1], prof_max, prof_approx_cost, Mathf.Min(prof_approx_cost, opti_prof_max), out devnull);
                 };
                 float tmp_len = optimizePoint(p[i], cost, out tmp_conf, out tmp_val);
-                if (approx_cost)
-                    len += OptimizedRASofLine(current, tmp_conf, prof_max, approx_cost, opti_prof_max, out tmp_val);
+                if (prof_approx_cost < opti_prof_max)
+                    len += OptimizedRASofLine(current, tmp_conf, prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
                 else
                     len += tmp_len;
             }
@@ -150,7 +151,7 @@ public class CarAI : MonoBehaviour {
                 path.Add(tmp_val[j]);
             current = tmp_val[tmp_val.Length - 1];
         }
-        len += OptimizedRASofLine(current, p[p.Length-1], prof_max, approx_cost, opti_prof_max, out tmp_val);
+        len += OptimizedRASofLine(current, p[p.Length-1], prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
         opt_path = path.ToArray();
