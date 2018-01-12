@@ -367,6 +367,8 @@ MonoBehaviour:
   minPointsMonteCarlo: 500
   maxConsecutiveRejections: 10
   rasMaxDepth: 7
+  rasApproxDepth: 1
+  rasMaxCutsPerUnit: 0.25
 --- !u!1 &1156957205 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1188388582976854, guid: 02e641040fb499c49a848e40f535164a,

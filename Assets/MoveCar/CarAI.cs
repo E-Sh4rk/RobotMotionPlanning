@@ -9,6 +9,8 @@ public class CarAI : MonoBehaviour {
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
     public int rasMaxDepth = 7;
+    public int rasApproxDepth = 1;
+    public float rasMaxCutsPerUnit = 0.25f;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -75,8 +77,11 @@ public class CarAI : MonoBehaviour {
             List<Vector3> path = FindPath();
             if (path != null)
             {
-                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, 1, rasMaxDepth, out save_targets) >= Mathf.Infinity)
+                if (ComputeOptimizedRAS(path.ToArray(), rasMaxDepth, rasMaxDepth, out save_targets) >= Mathf.Infinity)
+                {
                     Debug.Log("R&S depth exceeded !");
+                    save_targets = null;
+                }
                 else
                     targets.AddRange(save_targets);
             }
@@ -85,15 +90,12 @@ public class CarAI : MonoBehaviour {
         }
     }
 
-    // TODO: Fix the issue on the example
-    // Ideas :
-    // - Divide into more than 2 parts in Optimized RAS of line
-    // - If OptimizedRAS doesn't work for some point, try to compute the point by starting from the end
+    // TODO : If r&s not found for a line by starting from init, try by starting from target.
 
-    float OptimizedRASofLine(Vector3 init, Vector3 target, int prof_max, int prof_approx_cost, int opti_prox_max, out Vector3[] out_path)
+    float OptimizedRASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path)
     {
         // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
-        if (prof_max < 0)
+        if (max_depth < 0)
         {
             out_path = new Vector3[] { init, target };
             return Mathf.Infinity;
@@ -112,12 +114,23 @@ public class CarAI : MonoBehaviour {
             return l;
         else
         {
-            Vector3 middle_conf = init + CarController.computeDiffVector(init, target, clockwise) /2;
-            return ComputeOptimizedRAS(new Vector3[] { init, middle_conf, target }, prof_max - 1, prof_approx_cost, opti_prox_max - 1, out out_path);
+            Vector3 diff = CarController.computeDiffVector(init, target, clockwise);
+            int maxCuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * rasMaxCutsPerUnit);
+            for (int cuts = 1; cuts <= maxCuts; cuts++)
+            {
+                Vector3[] path = new Vector3[cuts+2];
+                path[0] = init; path[cuts + 1] = target;
+                for (int i = 1; i < cuts+1; i++)
+                    path[i] = init + i*CarController.computeDiffVector(init, target, clockwise) / (cuts+1);
+                float res = ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
+                if (res < Mathf.Infinity)
+                    return res;
+            }
+            return Mathf.Infinity;
         }
     }
 
-    float ComputeOptimizedRAS(Vector3[] p, int prof_max, int prof_approx_cost, int opti_prof_max, out Vector3[] opt_path)
+    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path)
     {
         List<Vector3> path = new List<Vector3>();
         path.Add(p[0]);
@@ -127,10 +140,10 @@ public class CarAI : MonoBehaviour {
         Vector3 tmp_conf;
         for (int i = 1; i < p.Length-1; i++)
         {
-            if (opti_prof_max <= 0)
+            if (opti_max_depth <= 0)
             {
                 // No point optimization
-                len += OptimizedRASofLine(current, p[i], prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
+                len += OptimizedRASofLine(current, p[i], max_depth, opti_max_depth, out tmp_val);
             }
             else
             {
@@ -138,12 +151,12 @@ public class CarAI : MonoBehaviour {
                 CostFunc cost = (Vector3 v, out Vector3[] output) =>
                 {
                     Vector3[] devnull;
-                    return OptimizedRASofLine(current, v, prof_max, prof_approx_cost, Mathf.Min(prof_approx_cost, opti_prof_max), out output)
-                    + OptimizedRASofLine(v, p[i + 1], prof_max, prof_approx_cost, Mathf.Min(prof_approx_cost, opti_prof_max), out devnull);
+                    return OptimizedRASofLine(current, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out output)
+                    + OptimizedRASofLine(v, p[i + 1], max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull);
                 };
                 float tmp_len = optimizePoint(p[i], cost, out tmp_conf, out tmp_val);
-                if (prof_approx_cost < opti_prof_max)
-                    len += OptimizedRASofLine(current, tmp_conf, prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
+                if (rasApproxDepth < opti_max_depth)
+                    len += OptimizedRASofLine(current, tmp_conf, max_depth, opti_max_depth, out tmp_val);
                 else
                     len += tmp_len;
             }
@@ -151,7 +164,7 @@ public class CarAI : MonoBehaviour {
                 path.Add(tmp_val[j]);
             current = tmp_val[tmp_val.Length - 1];
         }
-        len += OptimizedRASofLine(current, p[p.Length-1], prof_max, prof_approx_cost, opti_prof_max, out tmp_val);
+        len += OptimizedRASofLine(current, p[p.Length-1], max_depth, opti_max_depth, out tmp_val);
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
         opt_path = path.ToArray();
@@ -162,16 +175,16 @@ public class CarAI : MonoBehaviour {
     const float delta = 0.5f;
     const float angle_delta = 30f;
     const bool test_all_angles_in_one_iteration = true;
-    const bool use_directly_small_adjust = false;
+    const bool use_directly_small_step = false;
     const float small_delta = 0.1f;
     const float small_angle_delta = 5f;
     const bool small_test_all_angles_in_one_iteration = false;
-    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value, bool smallAdjust = use_directly_small_adjust)
+    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value, bool smallStep = use_directly_small_step)
     {
         float delta = CarAI.delta;
         float angle_delta = CarAI.angle_delta;
         bool test_all_angles_in_one_iteration = CarAI.test_all_angles_in_one_iteration;
-        if (smallAdjust)
+        if (smallStep)
         {
             delta = CarAI.small_delta;
             angle_delta = CarAI.small_angle_delta;
@@ -216,8 +229,8 @@ public class CarAI : MonoBehaviour {
             }
         }
         if (min_conf.HasValue)
-            return optimizePoint(min_conf.Value, cost, out conf_min, out value, smallAdjust);
-        if (!smallAdjust)
+            return optimizePoint(min_conf.Value, cost, out conf_min, out value, smallStep);
+        if (!smallStep)
             return optimizePoint(conf, cost, out conf_min, out value, true);
         value = min_value;
         conf_min = conf;
