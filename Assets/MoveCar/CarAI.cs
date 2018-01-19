@@ -170,6 +170,7 @@ public class CarAI : MonoBehaviour {
                 path.Add(tmp_val[j]);
             current = tmp_val[tmp_val.Length - 1];
         }
+        // TODO: if optimization enabled, try in the other direction
         len += OptimizedRASofLine(current, p[p.Length-1], max_depth, opti_max_depth, out tmp_val);
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
