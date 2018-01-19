@@ -17,8 +17,8 @@ public class CarAI : MonoBehaviour {
     Bounds bounds;
     ReedAndShepp.ReedAndShepp ras;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         controller = GetComponent<CarController>();
         phy = GetComponent<OnDemandPhysics>();
         Bounds b = GameObject.Find("Ground").GetComponent<Collider>().bounds;
@@ -90,7 +90,6 @@ public class CarAI : MonoBehaviour {
         }
     }
 
-    // TODO : If r&s not found for a line by starting from init, try by starting from target.
     float FindRasPath(Vector3[] path, out Vector3[] save_targets)
     {
         ras_cuts_per_unit = 0;
@@ -130,14 +129,27 @@ public class CarAI : MonoBehaviour {
             Vector3[] path = new Vector3[nb_cuts + 2];
             path[0] = init; path[nb_cuts + 1] = target;
             for (int i = 1; i < nb_cuts + 1; i++)
-                path[i] = init + i*CarController.computeDiffVector(init, target, clockwise) / (nb_cuts+1);
+                path[i] = init + i * CarController.computeDiffVector(init, target, clockwise) / (nb_cuts + 1);
             float res = ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
             return res;
         }
     }
-
     float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path)
     {
+        int last_reached;
+        float len = ComputeOptimizedRAS(p, max_depth, opti_max_depth, out opt_path, out last_reached);
+        
+        if (opti_max_depth > 0 && len >= Mathf.Infinity)
+        {
+            // TODO: if optimization enabled, try in the other direction
+
+        }
+
+        return len;
+    }
+    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path, out int last_reached_index)
+    {
+        last_reached_index = 0;
         List<Vector3> path = new List<Vector3>();
         path.Add(p[0]);
         Vector3 current = p[0];
@@ -169,11 +181,14 @@ public class CarAI : MonoBehaviour {
             for (int j = 1; j < tmp_val.Length; j++)
                 path.Add(tmp_val[j]);
             current = tmp_val[tmp_val.Length - 1];
+            if (len < Mathf.Infinity)
+                last_reached_index++;
         }
-        // TODO: if optimization enabled, try in the other direction
         len += OptimizedRASofLine(current, p[p.Length-1], max_depth, opti_max_depth, out tmp_val);
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
+        if (len < Mathf.Infinity)
+            last_reached_index++;
         opt_path = path.ToArray();
         return len;
     }
