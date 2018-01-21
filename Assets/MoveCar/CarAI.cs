@@ -9,7 +9,7 @@ public class CarAI : MonoBehaviour {
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
     public int rasMaxDepth = 7;
-    public int rasApproxDepth = 1;
+    public int rasApproxDepth = 0;
     public float rasMaxCutsPerUnit = 0.5f;
 
     CarController controller;
@@ -146,7 +146,7 @@ public class CarAI : MonoBehaviour {
             for (int j = 1; j < tmp_val.Length; j++)
                 path.Add(tmp_val[j]);
         }
-        len += RASofLine(path[path.Count - 1], path_rev[0], max_depth, opti_max_depth, out tmp_val, max_len-len);
+        len += RASofLine(path[path.Count - 1], path_rev[0], max_depth, opti_max_depth-1, out tmp_val, max_len-len);
         if (len >= Mathf.Infinity)
             return Mathf.Infinity;
         for (int j = 1; j < tmp_val.Length; j++)
@@ -162,8 +162,8 @@ public class CarAI : MonoBehaviour {
     }
 
     // TODO : Optimize by choosing the best middle instead of the first one that succeed.
-    // Give an optimized path between p1 and p2. p3 is the next point.
-    // If going from p2 to p3 is impossible anyway, the len returned will always be infinity even if the len from p1 to p2 is finite.
+    // Give a path from p1 to an other point near p2 that is optimized in order to go to p3.
+    // If going from this intermediate point to p3 is impossible, the len returned will always be infinity even if the len from p1 to the intermediate point is finite.
     float OptimizedRASofLine(Vector3 p1, Vector3 p2, Vector3 p3, int max_depth, int opti_max_depth, out Vector3[] output, float max_len)
     {
         Vector3 tmp_conf;
@@ -179,15 +179,15 @@ public class CarAI : MonoBehaviour {
             CostFunc cost = (Vector3 v, float max_cost) =>
             {
                 Vector3[] devnull;
-                float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull, Mathf.Min(max_len, max_cost));
+                float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, Mathf.Min(max_len, max_cost));
                 if (tmp_len < Mathf.Infinity)
-                    tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull, max_cost-tmp_len);
+                    tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, max_cost-tmp_len);
                 return tmp_len;
             };
             len = optimizePoint(p2, cost, out tmp_conf);
             output = null;
             if (len < Mathf.Infinity) // The len that interest us is only the len from p1 to p2
-                len = RASofLine(p1, tmp_conf, max_depth, opti_max_depth, out output, max_len);
+                len = RASofLine(p1, tmp_conf, max_depth, opti_max_depth-1, out output, max_len);
         }
         return len;
     }
@@ -258,9 +258,6 @@ public class CarAI : MonoBehaviour {
     float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path, float max_len)
     {
         out_path = null;
-        // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
-        if (max_depth < 0)
-            return Mathf.Infinity;
         bool clockwise = phy.clockwisePreferedForMove(init, target);
         if (!phy.moveAllowed(init, target, clockwise))
             return Mathf.Infinity;
@@ -272,7 +269,7 @@ public class CarAI : MonoBehaviour {
         out_path = Misc.RSPathToUnityPath(ras_path);
         if (phy.pathAllowed(out_path))
             return l;
-        else
+        else if (max_depth > 0)
         {
             Vector3 diff = CarController.computeDiffVector(init, target, clockwise);
             int nb_cuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * ras_cuts_per_unit);
@@ -281,7 +278,12 @@ public class CarAI : MonoBehaviour {
             path[0] = init; path[nb_cuts + 1] = target;
             for (int i = 1; i < nb_cuts + 1; i++)
                 path[i] = init + i * diff / (nb_cuts + 1);
-            return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path, max_len);
+            return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth, out out_path, max_len);
+        }
+        else
+        {
+            out_path = null;
+            return Mathf.Infinity;
         }
     }
 

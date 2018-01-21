@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44057348, g: 0.48920137, b: 0.5693451, a: 1}
+  m_IndirectSpecularColor: {r: 0.44057387, g: 0.48920184, b: 0.56934613, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -325,7 +325,7 @@ MonoBehaviour:
   minPointsMonteCarlo: 500
   maxConsecutiveRejections: 10
   rasMaxDepth: 7
-  rasApproxDepth: 1
+  rasApproxDepth: 0
   rasMaxCutsPerUnit: 0.5
 --- !u!1 &1156957205 stripped
 GameObject:
