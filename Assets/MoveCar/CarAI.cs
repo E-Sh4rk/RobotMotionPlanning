@@ -100,100 +100,86 @@ public class CarAI : MonoBehaviour {
         return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets);
     }
 
-    float ras_cuts_per_unit = 0;
-    float OptimizedRASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path)
+    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path/*, int middle*/)
     {
-        // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
-        if (max_depth < 0)
-        {
-            out_path = new Vector3[] { init, target };
-            return Mathf.Infinity;
-        }
-        bool clockwise = phy.clockwisePreferedForMove(init, target);
-        if (!phy.moveAllowed(init, target, clockwise))
-        {
-            out_path = new Vector3[] { init, target };
-            return Mathf.Infinity;
-        }
-        // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
-        ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
-        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
-        out_path = Misc.RSPathToUnityPath(ras_path);
-        if (phy.pathAllowed(out_path))
-            return l;
-        else
-        {
-            Vector3 diff = CarController.computeDiffVector(init, target, clockwise);
-            int nb_cuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * ras_cuts_per_unit);
-            if (nb_cuts < 1) nb_cuts = 1;
-            Vector3[] path = new Vector3[nb_cuts + 2];
-            path[0] = init; path[nb_cuts + 1] = target;
-            for (int i = 1; i < nb_cuts + 1; i++)
-                path[i] = init + i * CarController.computeDiffVector(init, target, clockwise) / (nb_cuts + 1);
-            float res = ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
-            return res;
-        }
-    }
-    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path)
-    {
-        int last_reached;
-        float len = ComputeOptimizedRAS(p, max_depth, opti_max_depth, out opt_path, out last_reached);
-        
-        if (opti_max_depth > 0 && len >= Mathf.Infinity)
-        {
-            // TODO: if optimization enabled, try in the other direction
-
-        }
-
-        return len;
-    }
-    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path, out int last_reached_index)
-    {
-        last_reached_index = 0;
+        int middle = p.Length-1;
         List<Vector3> path = new List<Vector3>();
-        path.Add(p[0]);
-        Vector3 current = p[0];
         float len = 0;
         Vector3[] tmp_val;
-        Vector3 tmp_conf;
-        for (int i = 1; i < p.Length-1; i++)
+
+        Vector3 last = p[0];
+        path.Add(p[0]);
+        for (int i = 1; i < middle; i++)
         {
-            if (opti_max_depth <= 0)
+            float tmp_len = OptimizedRASofLine(last, p[i], p[i+1], max_depth, opti_max_depth, out tmp_val);
+            if (tmp_len >= Mathf.Infinity)
             {
-                // No point optimization
-                len += OptimizedRASofLine(current, p[i], max_depth, opti_max_depth, out tmp_val);
+                middle = i;
+                break;
             }
-            else
-            {
-                // Point optimization
-                CostFunc cost = (Vector3 v, out Vector3[] output) =>
-                {
-                    Vector3[] devnull;
-                    return OptimizedRASofLine(current, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out output)
-                    + OptimizedRASofLine(v, p[i + 1], max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull);
-                };
-                float tmp_len = optimizePoint(p[i], cost, out tmp_conf, out tmp_val);
-                if (rasApproxDepth < opti_max_depth)
-                    len += OptimizedRASofLine(current, tmp_conf, max_depth, opti_max_depth, out tmp_val);
-                else
-                    len += tmp_len;
-            }
+            len += tmp_len;
             for (int j = 1; j < tmp_val.Length; j++)
                 path.Add(tmp_val[j]);
-            current = tmp_val[tmp_val.Length - 1];
-            if (len < Mathf.Infinity)
-                last_reached_index++;
+            last = tmp_val[tmp_val.Length-1];
         }
-        len += OptimizedRASofLine(current, p[p.Length-1], max_depth, opti_max_depth, out tmp_val);
+
+        List<Vector3> path_rev = new List<Vector3>();
+        last = p[p.Length - 1];
+        path_rev.Add(p[p.Length-1]);
+        for (int i = p.Length - 2; i > middle; i--)
+        {
+            len += OptimizedRASofLine(last, p[i], p[i-1], max_depth, opti_max_depth, out tmp_val);
+            for (int j = 1; j < tmp_val.Length; j++)
+                path_rev.Add(tmp_val[j]);
+            last = tmp_val[tmp_val.Length - 1];
+        }
+        path_rev.Reverse();
+
+        if (middle > 0 && middle < p.Length-1)
+        {
+            len += OptimizedRASofLine(path[path.Count - 1], p[middle], path_rev[0], max_depth, opti_max_depth, out tmp_val);
+            for (int j = 1; j < tmp_val.Length; j++)
+                path.Add(tmp_val[j]);
+        }
+        len += RASofLine(path[path.Count - 1], path_rev[0], max_depth, opti_max_depth, out tmp_val);
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
-        if (len < Mathf.Infinity)
-            last_reached_index++;
+
+        path.AddRange(path_rev);
         opt_path = path.ToArray();
         return len;
     }
 
-    delegate float CostFunc(Vector3 conf, out Vector3[] wit);
+    // Give an optimized path between p1 and p2. p3 is the next point.
+    // If going from p2 to p3 is impossible anyway, the len returned will always be infinity even if the len from p1 to p2 is finite.
+    float OptimizedRASofLine(Vector3 p1, Vector3 p2, Vector3 p3, int max_depth, int opti_max_depth, out Vector3[] output)
+    {
+        Vector3 tmp_conf;
+        float len = 0;
+        if (opti_max_depth <= 0)
+        {
+            // No point optimization
+            len = RASofLine(p1, p2, max_depth, opti_max_depth, out output);
+        }
+        else
+        {
+            // Point optimization
+            CostFunc cost = (Vector3 v) =>
+            {
+                Vector3[] devnull;
+                return RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull)
+                + RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull);
+            };
+            len = optimizePoint(p2, cost, out tmp_conf);
+            if (len < Mathf.Infinity) // The len that interest us is only the len from p1 to p2
+                len = RASofLine(p1, tmp_conf, max_depth, opti_max_depth, out output);
+            else
+                output = new Vector3[] { p1, p2 };
+        }
+        return len;
+    }
+
+    delegate float CostFunc(Vector3 conf);
     const float delta = 0.5f;
     const float angle_delta = 30f;
     const bool test_all_angles_in_one_iteration = true;
@@ -201,7 +187,7 @@ public class CarAI : MonoBehaviour {
     const float small_delta = 0.1f;
     const float small_angle_delta = 5f;
     const bool small_test_all_angles_in_one_iteration = false;
-    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, out Vector3[] value, bool smallStep = use_directly_small_step)
+    float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, bool smallStep = use_directly_small_step)
     {
         float delta = CarAI.delta;
         float angle_delta = CarAI.angle_delta;
@@ -236,27 +222,57 @@ public class CarAI : MonoBehaviour {
         // Remove those in collision
         all_pos.RemoveAll((c => phy.configurationInCollision(c)));
         // Compute best position
-        Vector3[] min_value = null;
-        float min = cost(conf, out min_value);
+        float min = cost(conf);
         Vector3? min_conf = null;
         foreach (Vector3 v in all_pos)
         {
-            Vector3[] tmp;
-            float c = cost(v, out tmp);
+            float c = cost(v);
             if (c < min)
             {
                 min = c;
                 min_conf = v;
-                min_value = tmp;
             }
         }
         if (min_conf.HasValue)
-            return optimizePoint(min_conf.Value, cost, out conf_min, out value, smallStep);
+            return optimizePoint(min_conf.Value, cost, out conf_min, smallStep);
         if (!smallStep)
-            return optimizePoint(conf, cost, out conf_min, out value, true);
-        value = min_value;
+            return optimizePoint(conf, cost, out conf_min, true);
         conf_min = conf;
         return min;
+    }
+
+    float ras_cuts_per_unit = 0;
+    float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path)
+    {
+        // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
+        if (max_depth < 0)
+        {
+            out_path = new Vector3[] { init, target };
+            return Mathf.Infinity;
+        }
+        bool clockwise = phy.clockwisePreferedForMove(init, target);
+        if (!phy.moveAllowed(init, target, clockwise))
+        {
+            out_path = new Vector3[] { init, target };
+            return Mathf.Infinity;
+        }
+        // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
+        ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
+        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
+        out_path = Misc.RSPathToUnityPath(ras_path);
+        if (phy.pathAllowed(out_path))
+            return l;
+        else
+        {
+            Vector3 diff = CarController.computeDiffVector(init, target, clockwise);
+            int nb_cuts = Mathf.CeilToInt(CarController.magnitudeOfDiffVector(diff) * ras_cuts_per_unit);
+            if (nb_cuts < 1) nb_cuts = 1;
+            Vector3[] path = new Vector3[nb_cuts + 2];
+            path[0] = init; path[nb_cuts + 1] = target;
+            for (int i = 1; i < nb_cuts + 1; i++)
+                path[i] = init + i * CarController.computeDiffVector(init, target, clockwise) / (nb_cuts + 1);
+            return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
+        }
     }
 
     struct Link
