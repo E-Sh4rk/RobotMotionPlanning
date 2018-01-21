@@ -254,6 +254,7 @@ public class CarAI : MonoBehaviour {
         return min;
     }
 
+    // TODO : add in streaming a point when needed in ComputeOptimizedRAS instead of using this ugly ras_cuts_per_unit
     float ras_cuts_per_unit = 0;
     float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path, float max_len)
     {
