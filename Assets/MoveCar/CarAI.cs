@@ -93,15 +93,16 @@ public class CarAI : MonoBehaviour {
     float FindRasPath(Vector3[] path, out Vector3[] save_targets)
     {
         ras_cuts_per_unit = 0;
-        float res = ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets);
+        float res = ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets, Mathf.Infinity);
         if (res < Mathf.Infinity)
             return res;
         ras_cuts_per_unit = rasMaxCutsPerUnit;
-        return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets);
+        return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets, Mathf.Infinity);
     }
-
-    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path/*, int middle*/)
+    
+    float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path/*, int middle*/, float max_len)
     {
+        opt_path = null;
         int middle = p.Length-1;
         List<Vector3> path = new List<Vector3>();
         float len = 0;
@@ -111,7 +112,7 @@ public class CarAI : MonoBehaviour {
         path.Add(p[0]);
         for (int i = 1; i < middle; i++)
         {
-            float tmp_len = OptimizedRASofLine(last, p[i], p[i+1], max_depth, opti_max_depth, out tmp_val);
+            float tmp_len = OptimizedRASofLine(last, p[i], p[i+1], max_depth, opti_max_depth, out tmp_val, max_len-len);
             if (tmp_len >= Mathf.Infinity)
             {
                 middle = i;
@@ -128,7 +129,9 @@ public class CarAI : MonoBehaviour {
         path_rev.Add(p[p.Length-1]);
         for (int i = p.Length - 2; i > middle; i--)
         {
-            len += OptimizedRASofLine(last, p[i], p[i-1], max_depth, opti_max_depth, out tmp_val);
+            len += OptimizedRASofLine(last, p[i], p[i-1], max_depth, opti_max_depth, out tmp_val, max_len-len);
+            if (len >= Mathf.Infinity)
+                return Mathf.Infinity;
             for (int j = 1; j < tmp_val.Length; j++)
                 path_rev.Add(tmp_val[j]);
             last = tmp_val[tmp_val.Length - 1];
@@ -137,49 +140,59 @@ public class CarAI : MonoBehaviour {
 
         if (middle > 0 && middle < p.Length-1)
         {
-            len += OptimizedRASofLine(path[path.Count - 1], p[middle], path_rev[0], max_depth, opti_max_depth, out tmp_val);
+            len += OptimizedRASofLine(path[path.Count - 1], p[middle], path_rev[0], max_depth, opti_max_depth, out tmp_val, max_len-len);
+            if (len >= Mathf.Infinity)
+                return Mathf.Infinity;
             for (int j = 1; j < tmp_val.Length; j++)
                 path.Add(tmp_val[j]);
         }
-        len += RASofLine(path[path.Count - 1], path_rev[0], max_depth, opti_max_depth, out tmp_val);
+        len += RASofLine(path[path.Count - 1], path_rev[0], max_depth, opti_max_depth, out tmp_val, max_len-len);
+        if (len >= Mathf.Infinity)
+            return Mathf.Infinity;
         for (int j = 1; j < tmp_val.Length; j++)
             path.Add(tmp_val[j]);
 
-        path.AddRange(path_rev);
-        opt_path = path.ToArray();
+        if (len < Mathf.Infinity)
+        {
+            path.AddRange(path_rev);
+            opt_path = path.ToArray();
+        }
+        
         return len;
     }
 
+    // TODO : Optimize by choosing the best middle instead of the first one that succeed.
     // Give an optimized path between p1 and p2. p3 is the next point.
     // If going from p2 to p3 is impossible anyway, the len returned will always be infinity even if the len from p1 to p2 is finite.
-    float OptimizedRASofLine(Vector3 p1, Vector3 p2, Vector3 p3, int max_depth, int opti_max_depth, out Vector3[] output)
+    float OptimizedRASofLine(Vector3 p1, Vector3 p2, Vector3 p3, int max_depth, int opti_max_depth, out Vector3[] output, float max_len)
     {
         Vector3 tmp_conf;
         float len = 0;
         if (opti_max_depth <= 0)
         {
             // No point optimization
-            len = RASofLine(p1, p2, max_depth, opti_max_depth, out output);
+            len = RASofLine(p1, p2, max_depth, opti_max_depth, out output, max_len);
         }
         else
         {
             // Point optimization
-            CostFunc cost = (Vector3 v) =>
+            CostFunc cost = (Vector3 v, float max_cost) =>
             {
                 Vector3[] devnull;
-                return RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull)
-                + RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull);
+                float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull, Mathf.Min(max_len, max_cost));
+                if (tmp_len < Mathf.Infinity)
+                    tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth), out devnull, max_cost-tmp_len);
+                return tmp_len;
             };
             len = optimizePoint(p2, cost, out tmp_conf);
+            output = null;
             if (len < Mathf.Infinity) // The len that interest us is only the len from p1 to p2
-                len = RASofLine(p1, tmp_conf, max_depth, opti_max_depth, out output);
-            else
-                output = new Vector3[] { p1, p2 };
+                len = RASofLine(p1, tmp_conf, max_depth, opti_max_depth, out output, max_len);
         }
         return len;
     }
 
-    delegate float CostFunc(Vector3 conf);
+    delegate float CostFunc(Vector3 conf, float max_cost);
     const float delta = 0.5f;
     const float angle_delta = 30f;
     const bool test_all_angles_in_one_iteration = true;
@@ -222,11 +235,11 @@ public class CarAI : MonoBehaviour {
         // Remove those in collision
         all_pos.RemoveAll((c => phy.configurationInCollision(c)));
         // Compute best position
-        float min = cost(conf);
+        float min = cost(conf, Mathf.Infinity);
         Vector3? min_conf = null;
         foreach (Vector3 v in all_pos)
         {
-            float c = cost(v);
+            float c = cost(v, min);
             if (c < min)
             {
                 min = c;
@@ -242,23 +255,20 @@ public class CarAI : MonoBehaviour {
     }
 
     float ras_cuts_per_unit = 0;
-    float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path)
+    float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path, float max_len)
     {
+        out_path = null;
         // If the max depth has been reached, or if init/target is not an allowed straight move, we return Infinity.
         if (max_depth < 0)
-        {
-            out_path = new Vector3[] { init, target };
             return Mathf.Infinity;
-        }
         bool clockwise = phy.clockwisePreferedForMove(init, target);
         if (!phy.moveAllowed(init, target, clockwise))
-        {
-            out_path = new Vector3[] { init, target };
             return Mathf.Infinity;
-        }
         // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
         float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
+        if (l >= max_len)
+            return Mathf.Infinity;
         out_path = Misc.RSPathToUnityPath(ras_path);
         if (phy.pathAllowed(out_path))
             return l;
@@ -271,7 +281,7 @@ public class CarAI : MonoBehaviour {
             path[0] = init; path[nb_cuts + 1] = target;
             for (int i = 1; i < nb_cuts + 1; i++)
                 path[i] = init + i * CarController.computeDiffVector(init, target, clockwise) / (nb_cuts + 1);
-            return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path);
+            return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path, max_len);
         }
     }
 
