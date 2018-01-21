@@ -280,7 +280,7 @@ public class CarAI : MonoBehaviour {
             Vector3[] path = new Vector3[nb_cuts + 2];
             path[0] = init; path[nb_cuts + 1] = target;
             for (int i = 1; i < nb_cuts + 1; i++)
-                path[i] = init + i * CarController.computeDiffVector(init, target, clockwise) / (nb_cuts + 1);
+                path[i] = init + i * diff / (nb_cuts + 1);
             return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth - 1, out out_path, max_len);
         }
     }
