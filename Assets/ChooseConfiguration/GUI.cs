@@ -26,7 +26,7 @@ public class GUI : MonoBehaviour {
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.mode = 0;
 
-                SceneManager.LoadScene(1);
+                SceneManager.LoadScene(2);
             }
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 75, 150, 25), "Reed and Shepp !"))
             {
@@ -34,7 +34,7 @@ public class GUI : MonoBehaviour {
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.mode = 1;
 
-                SceneManager.LoadScene(1);
+                SceneManager.LoadScene(2);
             }
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 125, 150, 25), "Combine both !"))
             {
@@ -42,15 +42,17 @@ public class GUI : MonoBehaviour {
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.mode = 2;
 
-                SceneManager.LoadScene(1);
+                SceneManager.LoadScene(2);
             }
         }
     }
 
+    GameObject[] map;
+
     // Use this for initialization
     void Start () {
-		
-	}
+
+    }
 	
 	// Update is called once per frame
 	void Update () {

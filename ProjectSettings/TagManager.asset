@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Map
+  - AllMap
   layers:
   - Default
   - TransparentFX

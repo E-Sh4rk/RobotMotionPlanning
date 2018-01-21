@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/ChooseMap/mapChooser.unity
+    guid: ab90b88e1b8f58d47b5d194de9d9704c
+  - enabled: 1
     path: Assets/ChooseConfiguration/ChooseConfiguration.unity
     guid: fe85116582862ee4a8a9811994b43287
   - enabled: 1

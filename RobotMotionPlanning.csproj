@@ -215,10 +215,10 @@
       <HintPath>Assets/MoveCar/ReedAndSheppCS.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Analytics">
-      <HintPath>C:/Users/Mick/AppData/LocalLow/Unity/cache/packages/packages.unity.com/com.unity.analytics@1.0.1/UnityEngine.Analytics.dll</HintPath>
+      <HintPath>C:/Users/Mathis/AppData/LocalLow/Unity/cache/packages/packages.unity.com/com.unity.analytics@1.0.1/UnityEngine.Analytics.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing">
-      <HintPath>C:/Users/Mick/AppData/LocalLow/Unity/cache/packages/packages.unity.com/com.unity.purchasing@1.0.1/UnityEngine.Purchasing.dll</HintPath>
+      <HintPath>C:/Users/Mathis/AppData/LocalLow/Unity/cache/packages/packages.unity.com/com.unity.purchasing@1.0.1/UnityEngine.Purchasing.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +226,9 @@
     <Compile Include="Assets\CarController.cs" />
     <Compile Include="Assets\ChooseConfiguration\CarControl.cs" />
     <Compile Include="Assets\ChooseConfiguration\GUI.cs" />
+    <Compile Include="Assets\ChooseMap\Chooser.cs" />
+    <Compile Include="Assets\ChooseMap\DontDestroy.cs" />
+    <Compile Include="Assets\Colorize.cs" />
     <Compile Include="Assets\MoveCar\CarAI.cs" />
     <Compile Include="Assets\MoveCar\GUI2.cs" />
     <Compile Include="Assets\MoveCar\Misc.cs" />

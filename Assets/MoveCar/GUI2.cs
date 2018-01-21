@@ -12,7 +12,13 @@ public class GUI2 : MonoBehaviour {
         if (car.GetComponent<CarAI>().HasFinished())
         {
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 25, 100, 25), "Back"))
-                SceneManager.LoadScene(0);
+            {
+                foreach (GameObject m in GameObject.FindGameObjectsWithTag("AllMap"))
+                {
+                    Destroy(m);
+                }
+                    SceneManager.LoadScene(0);
+            }
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 75, 100, 25), "Replay"))
                 car.GetComponent<CarAI>().replay();
             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 50, 125, 100, 25), "Retry"))
