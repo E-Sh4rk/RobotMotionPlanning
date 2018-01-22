@@ -101,30 +101,39 @@ public class CarAI : MonoBehaviour {
     float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path, float max_len)
     {
         opt_path = null;
-        int middle = p.Length-1;
         List<Vector3> path = new List<Vector3>();
         float len = 0;
         Vector3[] tmp_val;
 
+        float tmp_len;
         Vector3[] p2 = (Vector3[])p.Clone();
+        int middle = p2.Length - 1;
         path.Add(p2[0]);
         for (int i = 1; i < middle; i++)
         {
-            float tmp_len = OptimizedRASofLine(p2[i-1], p2[i], p2[i+1], max_depth, opti_max_depth, out tmp_val, max_len-len);
+            tmp_len = OptimizedRASofLine(p2[i-1], p2[i], p2[i+1], max_depth, opti_max_depth, out tmp_val, max_len-len);
             if (tmp_len >= Mathf.Infinity)
             {
-                /*float cuts_len;
-                Vector3[] subpath = CutSegment(p2[i], p2[i+1], nb_cuts_streaming, out cuts_len, null);
-                if (cuts_len < rasMinStreamingCutsLength)
-                {*/
+                Vector3[] subpath = CutPath(new Vector3[] { p2[i - 1], p2[i], p2[i + 1] }, nb_cuts_streaming, rasMinStreamingCutsLength, null);
+                if (subpath.Length <= 3)
+                {
                     middle = i;
                     break;
-                /*}
+                }
                 else
-                {*
-
-                    middle = p2.Length-1;
-                }*/
+                {
+                    Vector3[] new_p2 = new Vector3[p2.Length+subpath.Length-3];
+                    for (int j = 0; j < i-1; j++)
+                        new_p2[j] = p2[j];
+                    for (int j = 0; j < subpath.Length; j++)
+                        new_p2[j+i-1] = subpath[j];
+                    for (int j = i+2; j < p2.Length; j++)
+                        new_p2[j+subpath.Length-3] = p2[j];
+                    p2 = new_p2;
+                    middle = p2.Length - 1;
+                    i--;
+                    continue;
+                }
             }
             len += tmp_len;
             for (int j = 1; j < tmp_val.Length; j++)
@@ -138,9 +147,28 @@ public class CarAI : MonoBehaviour {
         {
             if (i > 0 && i < p2.Length - 1)
             {
-                len += OptimizedRASofLine(p2[i + 1], p2[i], p2[i - 1], max_depth, opti_max_depth, out tmp_val, max_len - len);
-                if (len >= Mathf.Infinity)
-                    return Mathf.Infinity;
+                tmp_len = OptimizedRASofLine(p2[i + 1], p2[i], p2[i - 1], max_depth, opti_max_depth, out tmp_val, max_len - len);
+                if (tmp_len >= Mathf.Infinity)
+                {
+                    Vector3[] subpath = CutPath(new Vector3[] { p2[i - 1], p2[i], p2[i + 1] }, nb_cuts_streaming, rasMinStreamingCutsLength, null);
+                    if (subpath.Length <= 3)
+                        return Mathf.Infinity;
+                    else
+                    {
+                        Vector3[] new_p2 = new Vector3[p2.Length + subpath.Length - 3];
+                        for (int j = 0; j < i - 1; j++)
+                            new_p2[j] = p2[j];
+                        for (int j = 0; j < subpath.Length; j++)
+                            new_p2[j + i - 1] = subpath[j];
+                        for (int j = i + 2; j < p2.Length; j++)
+                            new_p2[j + subpath.Length - 3] = p2[j];
+                        p2 = new_p2;
+                        i += subpath.Length - 3;
+                        i++;
+                        continue;
+                    }
+                }
+                len += tmp_len;
                 for (int j = 1; j < tmp_val.Length; j++)
                     path_rev.Add(tmp_val[j]);
                 p2[i] = tmp_val[tmp_val.Length - 1];
@@ -273,8 +301,7 @@ public class CarAI : MonoBehaviour {
             return l;
         else if (max_depth > 0)
         {
-            float devnull;
-            Vector3[] path = CutSegment(init, target, nb_cuts_recursive, out devnull, clockwise);
+            Vector3[] path = CutPath(new Vector3[] { init, target }, nb_cuts_recursive, 0, new bool[] { clockwise });
             return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth, out out_path, max_len);
         }
         else
@@ -284,20 +311,24 @@ public class CarAI : MonoBehaviour {
         }
     }
 
-    Vector3[] CutSegment(Vector3 init, Vector3 target, int nb_cuts, out float parts_length, bool? clockwise = null)
+    Vector3[] CutPath(Vector3[] p, int nb_cuts, float min_cut_length, bool[] clockwise = null)
     {
-        parts_length = 0;
         if (nb_cuts < 1) return null;
 
-        bool cw = clockwise.HasValue ? clockwise.Value : phy.clockwisePreferedForMove(init, target);
-        Vector3 diff = CarController.computeDiffVector(init, target, cw);
-        parts_length = CarController.magnitudeOfDiffVector(diff) / (nb_cuts+1);
-        
-        Vector3[] path = new Vector3[nb_cuts + 2];
-        path[0] = init; path[nb_cuts + 1] = target;
-        for (int i = 1; i < nb_cuts + 1; i++)
-            path[i] = init + i * diff / (nb_cuts + 1);
-        return path;
+        List<Vector3> new_p = new List<Vector3>();
+        new_p.Add(p[0]);
+        for (int i = 0; i < p.Length-1; i++)
+        {
+            bool cw = clockwise != null ? clockwise[i] : phy.clockwisePreferedForMove(p[i], p[i+1]);
+            Vector3 diff = CarController.computeDiffVector(p[i], p[i + 1], cw);
+            if (CarController.magnitudeOfDiffVector(diff) / (nb_cuts + 1) >= min_cut_length)
+            {
+                for (int j = 1; j <= nb_cuts; j++)
+                    new_p.Add(p[i] + j * diff / (nb_cuts + 1));
+            }
+            new_p.Add(p[i + 1]);
+        }
+        return new_p.ToArray();
     }
 
     struct Link
