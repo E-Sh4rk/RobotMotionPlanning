@@ -93,62 +93,101 @@ public class CarAI : MonoBehaviour {
         return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets, Mathf.Infinity);
     }
 
-    // TODO : issue when approx depth = 1
-    // TODO : Optimize by choosing the best middle instead of the first one that succeed.
     const int nb_cuts_streaming = 1;
     float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path, float max_len)
     {
         opt_path = null;
-        List<Vector3> path = new List<Vector3>();
-        float len = 0;
-        Vector3[] tmp_val;
 
-        float tmp_len;
-        Vector3[] p2 = (Vector3[])p.Clone();
-        int middle = p2.Length - 1;
-        path.Add(p2[0]);
-        for (int i = 1; i < middle; i++)
+        Dictionary<Vector3, Junction> middles;
+        Vector3[] path = ComputeOptimizedRAS_aux(p, max_depth, opti_max_depth, out middles, max_len);
+
+        /*Vector3[] rev_p = new Vector3[p.Length];
+        for (int i = 0; i < p.Length; i++)
+            rev_p[rev_p.Length - 1 - i] = p[i];
+        Dictionary<Vector3, Junction> rev_middles;
+        Vector3[] rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len);*/
+        // TODO : Domain restricted because it was too intensive. Investigate.
+        List<Vector3> rev_p_lst = new List<Vector3>();
+        float len = 0;
+        for (int i = p.Length - 1; i >= 0; i--)
         {
-            tmp_len = OptimizedRASofLine(p2[i-1], p2[i], p2[i+1], max_depth, opti_max_depth, out tmp_val, max_len-len);
-            if (tmp_len >= Mathf.Infinity)
+            rev_p_lst.Add(p[i]);
+            if (middles.ContainsKey(p[i]))
             {
-                Vector3[] subpath = CutPath(new Vector3[] { p2[i - 1], p2[i], p2[i + 1] }, nb_cuts_streaming, rasMinStreamingCutsLength, null);
-                if (subpath.Length <= 3)
-                {
-                    middle = i;
-                    break;
-                }
-                else
-                {
-                    Vector3[] new_p2 = new Vector3[p2.Length+subpath.Length-3];
-                    for (int j = 0; j < i-1; j++)
-                        new_p2[j] = p2[j];
-                    for (int j = 0; j < subpath.Length; j++)
-                        new_p2[j+i-1] = subpath[j];
-                    for (int j = i+2; j < p2.Length; j++)
-                        new_p2[j+subpath.Length-3] = p2[j];
-                    p2 = new_p2;
-                    middle = p2.Length - 1;
-                    i--;
+                len = middles[p[i]].len;
+                break;
+            }
+        }
+        Vector3[] rev_p = rev_p_lst.ToArray();
+        Dictionary<Vector3, Junction> rev_middles;
+        Vector3[] rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len-len);
+
+        // Junction
+        Vector3[] tmp_val;
+        float min_len = Mathf.Infinity;
+        foreach (Vector3 pt in middles.Keys)
+        {
+            if (rev_middles.ContainsKey(pt))
+            {
+                Junction j1 = middles[pt];
+                Junction j2 = rev_middles[pt];
+                float total_len = j1.len + j2.len;
+                if (total_len >= max_len)
                     continue;
+
+                Vector3[] path1 = new Vector3[j1.path_count];
+                System.Array.Copy(path, path1, path1.Length);
+                Vector3[] path2 = new Vector3[j2.path_count];
+                for (int i = 0; i < path2.Length; i++)
+                    path2[path2.Length-1-i] = rev_path[i];
+
+                total_len += OptimizedJunction(path1[path1.Length-1], pt, path2[0], max_depth, opti_max_depth, out tmp_val, Mathf.Min(max_len,min_len) - total_len);
+                if (total_len >= max_len)
+                    continue;
+
+                if (total_len < min_len)
+                {
+                    min_len = total_len;
+                    opt_path = new Vector3[path1.Length + tmp_val.Length + path2.Length - 2];
+                    System.Array.Copy(path1, opt_path, path1.Length);
+                    System.Array.Copy(tmp_val, 0, opt_path, path1.Length-1, tmp_val.Length);
+                    System.Array.Copy(path2, 0, opt_path, path1.Length + tmp_val.Length - 2, path2.Length);
                 }
             }
-            len += tmp_len;
-            for (int j = 1; j < tmp_val.Length; j++)
-                path.Add(tmp_val[j]);
-            p2[i] = tmp_val[tmp_val.Length-1];
         }
+        return min_len;
+    }
 
-        List<Vector3> path_rev = new List<Vector3>();
-        path_rev.Add(p2[p2.Length-1]);
-        for (int i = p2.Length - 2; i > middle; i--)
+    struct Junction
+    {
+        public Junction(int path_count, float len) { this.path_count = path_count; this.len = len; }
+        public int path_count;
+        public float len;
+    }
+
+    Vector3[] ComputeOptimizedRAS_aux(Vector3[] p, int max_depth, int opti_max_depth, out Dictionary<Vector3, Junction> middles, float max_len)
+    {
+        Vector3[] tmp_val;
+        float tmp_len;
+
+        float len = 0;
+        Vector3[] p2 = (Vector3[])p.Clone();
+        List<Vector3> path = new List<Vector3>();
+        path.Add(p2[0]);
+
+        middles = new Dictionary<Vector3, Junction>();
+        middles.Add(p2[0], new Junction(path.Count, 0));
+        if (p2.Length > 1)
+            middles.Add(p2[1], new Junction(path.Count, 0));
+
+        for (int i = 1; i < p2.Length - 1; i++)
         {
-            tmp_len = OptimizedRASofLine(p2[i + 1], p2[i], p2[i - 1], max_depth, opti_max_depth, out tmp_val, max_len - len);
+            tmp_len = OptimizedRASofLine(p2[i - 1], p2[i], p2[i + 1], max_depth, opti_max_depth, out tmp_val, max_len - len);
             if (tmp_len >= Mathf.Infinity)
             {
                 Vector3[] subpath = CutPath(new Vector3[] { p2[i - 1], p2[i], p2[i + 1] }, nb_cuts_streaming, rasMinStreamingCutsLength, null);
                 if (subpath.Length <= 3)
-                    return Mathf.Infinity;
+                    break;
                 else
                 {
                     Vector3[] new_p2 = new Vector3[p2.Length + subpath.Length - 3];
@@ -159,32 +198,18 @@ public class CarAI : MonoBehaviour {
                     for (int j = i + 2; j < p2.Length; j++)
                         new_p2[j + subpath.Length - 3] = p2[j];
                     p2 = new_p2;
-                    i += subpath.Length - 3;
-                    i++;
+                    i--;
                     continue;
                 }
             }
             len += tmp_len;
             for (int j = 1; j < tmp_val.Length; j++)
-                path_rev.Add(tmp_val[j]);
+                path.Add(tmp_val[j]);
             p2[i] = tmp_val[tmp_val.Length - 1];
+            try { middles.Add(p2[i + 1], new Junction(path.Count, len)); } catch { }
         }
-        path_rev.Reverse();
 
-        // Junction
-        len += OptimizedJunction(path[path.Count - 1], p2[middle], path_rev[0], max_depth, opti_max_depth, out tmp_val, max_len-len);
-        if (len >= Mathf.Infinity)
-            return Mathf.Infinity;
-        for (int j = 1; j < tmp_val.Length - 1; j++)
-            path.Add(tmp_val[j]);
-
-        if (len < Mathf.Infinity)
-        {
-            path.AddRange(path_rev);
-            opt_path = path.ToArray();
-        }
-        
-        return len;
+        return path.ToArray();
     }
 
     // Like OptimizedRASofLine but return a path from p1 to p3.
@@ -201,7 +226,7 @@ public class CarAI : MonoBehaviour {
                 return Mathf.Infinity;
         }
         
-        len += RASofLine(tmp_out1[tmp_out1.Length-1], p3, max_depth, opti_max_depth-1, out tmp_out2, max_len-len);
+        len += RASofLine(tmp_out1[tmp_out1.Length-1], p3, max_depth, opti_max_depth>0?opti_max_depth-1:opti_max_depth, out tmp_out2, max_len-len);
         if (len >= Mathf.Infinity)
             return Mathf.Infinity;
         output = new Vector3[tmp_out1.Length + tmp_out2.Length-1];
