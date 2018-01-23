@@ -50,10 +50,8 @@ public class CarAI : MonoBehaviour {
         if (ras == null)
             return;
         finished = false;
-        controller.setConfiguration(ConfigInfos.initialConf);
 
         controller.setConfiguration(ConfigInfos.initialConf);
-
         if (ConfigInfos.mode == 0)
         {
             List<Vector3> path = FindPath();
@@ -193,11 +191,16 @@ public class CarAI : MonoBehaviour {
     float OptimizedJunction(Vector3 p1, Vector3 p2, Vector3 p3, int max_depth, int opti_max_depth, out Vector3[] output, float max_len)
     {
         output = null;
-        Vector3[] tmp_out1;
+        float len = 0;
+        Vector3[] tmp_out1 = new Vector3[] { p1 };
         Vector3[] tmp_out2;
-        float len = OptimizedRASofLine(p1, p2, p3, max_depth, opti_max_depth, out tmp_out1, max_len);
-        if (len >= Mathf.Infinity)
-            return Mathf.Infinity;
+        if (p1 != p2 && p2 != p3)
+        {
+            len += OptimizedRASofLine(p1, p2, p3, max_depth, opti_max_depth, out tmp_out1, max_len);
+            if (len >= Mathf.Infinity)
+                return Mathf.Infinity;
+        }
+        
         len += RASofLine(tmp_out1[tmp_out1.Length-1], p3, max_depth, opti_max_depth-1, out tmp_out2, max_len-len);
         if (len >= Mathf.Infinity)
             return Mathf.Infinity;
@@ -314,9 +317,10 @@ public class CarAI : MonoBehaviour {
         Vector3[] tmp_path = Misc.RSPathToUnityPath(ras_path);
         if (phy.pathAllowed(tmp_path))
         {
-            out_path = new Vector3[tmp_path.Length + 2];
-            out_path[0] = init; out_path[out_path.Length-1] = target;
-            System.Array.Copy(tmp_path, 0, out_path, 1, tmp_path.Length);
+            if (tmp_path.Length >= 2)
+                out_path = tmp_path;
+            else
+                out_path = new Vector3[] { init, target };
             return l;
         }
         else if (max_depth > 0)
