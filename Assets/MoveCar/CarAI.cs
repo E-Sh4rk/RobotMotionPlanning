@@ -101,26 +101,32 @@ public class CarAI : MonoBehaviour {
         Dictionary<Vector3, Junction> middles;
         Vector3[] path = ComputeOptimizedRAS_aux(p, max_depth, opti_max_depth, out middles, max_len);
 
-        /*Vector3[] rev_p = new Vector3[p.Length];
-        for (int i = 0; i < p.Length; i++)
-            rev_p[rev_p.Length - 1 - i] = p[i];
         Dictionary<Vector3, Junction> rev_middles;
-        Vector3[] rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len);*/
-        // TODO : Domain restricted because it was too intensive. Investigate.
-        List<Vector3> rev_p_lst = new List<Vector3>();
-        float len = 0;
-        for (int i = p.Length - 1; i >= 0; i--)
+        Vector3[] rev_path;
+        if (opti_max_depth /*> 0*/ > int.MaxValue) // TODO: tmp desactivated
         {
-            rev_p_lst.Add(p[i]);
-            if (middles.ContainsKey(p[i]))
-            {
-                len = middles[p[i]].len;
-                break;
-            }
+            Vector3[] rev_p = new Vector3[p.Length];
+            for (int i = 0; i < p.Length; i++)
+                rev_p[rev_p.Length - 1 - i] = p[i];
+            rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len);
         }
-        Vector3[] rev_p = rev_p_lst.ToArray();
-        Dictionary<Vector3, Junction> rev_middles;
-        Vector3[] rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len-len);
+        else
+        {
+            List<Vector3> rev_p_lst = new List<Vector3>();
+            float len = 0;
+            for (int i = p.Length - 1; i >= 0; i--)
+            {
+                rev_p_lst.Add(p[i]);
+                if (middles.ContainsKey(p[i]))
+                {
+                    len = middles[p[i]].len;
+                    break;
+                }
+            }
+            Vector3[] rev_p = rev_p_lst.ToArray();
+            rev_path = ComputeOptimizedRAS_aux(rev_p, max_depth, opti_max_depth, out rev_middles, max_len - len);
+        }
+        // TODO : case of path of length 2 or 3 (first junction never streamed), compute first edge at the beggining (separately)?
 
         // Junction
         Vector3[] tmp_val;
