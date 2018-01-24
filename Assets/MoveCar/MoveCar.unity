@@ -324,8 +324,8 @@ MonoBehaviour:
   maxPointsMonteCarlo: 2000
   minPointsMonteCarlo: 500
   maxConsecutiveRejections: 10
-  rasMaxDepth: 7
-  rasMinStreamingCutsLength: 1
+  rasMaxDepth: 10
+  rasMinCutsLength: 0.001
   rasApproxDepth: 0
 --- !u!1 &1156957205 stripped
 GameObject:
