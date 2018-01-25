@@ -54,6 +54,7 @@ public class CarAI : MonoBehaviour {
         controller.setConfiguration(ConfigInfos.initialConf);
         if (ConfigInfos.mode == 0)
         {
+            rendering_ras = false;
             List<Vector3> path = FindPath();
             if (path != null)
             {
@@ -65,6 +66,7 @@ public class CarAI : MonoBehaviour {
         }
         if (ConfigInfos.mode == 1)
         {
+            rendering_ras = true;
             ReedAndShepp.ReedAndShepp.Vector3[] path;
             ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out path);
             save_targets = Misc.RSPathToUnityPath(path);
@@ -72,6 +74,7 @@ public class CarAI : MonoBehaviour {
         }
         if (ConfigInfos.mode == 2)
         {
+            rendering_ras = true;
             List<Vector3> path = FindPath();
             if (path != null)
             {
@@ -319,7 +322,7 @@ public class CarAI : MonoBehaviour {
         if (l >= max_len)
             return Mathf.Infinity;
         Vector3[] tmp_path = Misc.RSPathToUnityPath(ras_path);
-        if (phy.pathAllowed(tmp_path))
+        if (phy.pathAllowed(true, tmp_path))
         {
             if (tmp_path.Length >= 2)
                 out_path = tmp_path;
@@ -339,7 +342,7 @@ public class CarAI : MonoBehaviour {
             return Mathf.Infinity;
     }
 
-    Vector3[] CutPath(Vector3[] p, int nb_cuts, float min_cut_length, bool[] clockwise = null)
+    Vector3[] CutPath(Vector3[] p, int nb_cuts, float min_cut_length, bool[] clockwise = null /* Just for opti, to avoid recomputing it if we already have it */)
     {
         if (nb_cuts < 1) return null;
 
@@ -409,7 +412,7 @@ public class CarAI : MonoBehaviour {
         components.MakeSet(pts[0]);
         pts.Add(ConfigInfos.finalConf);
         components.MakeSet(pts[1]);
-        if (phy.moveAllowed(pts[0], pts[1]))
+        if (phy.moveAllowed(false, pts[0], pts[1]))
         {
             dico.Add(new Link(pts[0], pts[1]), distanceBetweenConf(pts[0],pts[1]));
             Debug.DrawLine(CarController.spatialCoordOfConfiguration(pts[0]), CarController.spatialCoordOfConfiguration(pts[1]), Color.red, 5f);
@@ -433,7 +436,7 @@ public class CarAI : MonoBehaviour {
                 {
                     if (components_linked.Contains(components.Find(v).value))
                         continue;
-                    bool linked = phy.moveAllowed(v, pt);
+                    bool linked = phy.moveAllowed(false, v, pt);
                     tmp_dico[v] = linked;
                     if (linked)
                     {
@@ -453,7 +456,7 @@ public class CarAI : MonoBehaviour {
                         }
                         catch
                         {
-                            linked = phy.moveAllowed(v, pt);
+                            linked = phy.moveAllowed(false, v, pt);
                         }
                         if (linked)
                             Debug.DrawLine(CarController.spatialCoordOfConfiguration(v), CarController.spatialCoordOfConfiguration(pt), Color.red, 5f);
@@ -561,6 +564,7 @@ public class CarAI : MonoBehaviour {
 
     // Update is called once per frame
     List<Vector3> targets = new List<Vector3>();
+    bool rendering_ras = false;
     void Update () {
         /* Not show collision
         if (phy.currentlyInCollision())
@@ -573,7 +577,12 @@ public class CarAI : MonoBehaviour {
         {
             if (targets.Count > 0)
             {
-                controller.MoveStraigthTo(targets[0], phy.clockwisePreferedForMove(controller.getConfiguration(),targets[0]));
+                bool clockwise;
+                if (rendering_ras)
+                    clockwise = phy.clockwiseForRASMove(controller.getConfiguration(), targets[0]);
+                else
+                    clockwise = phy.clockwisePreferedForMove(controller.getConfiguration(), targets[0]);
+                controller.MoveStraigthTo(targets[0], clockwise);
                 targets.RemoveAt(0);
             }
             else

@@ -47,8 +47,6 @@ public class GUI : MonoBehaviour {
         }
     }
 
-    GameObject[] map;
-
     // Use this for initialization
     void Start () {
 

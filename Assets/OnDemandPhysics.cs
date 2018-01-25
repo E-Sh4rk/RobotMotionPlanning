@@ -59,18 +59,21 @@ public class OnDemandPhysics : MonoBehaviour {
         control.setConfiguration(conf_save);
         return !collision;
     }
-    public bool moveAllowed(Vector3 init, Vector3 target)
+    public bool moveAllowed(bool ras, Vector3 init, Vector3 target)
     {
-        return moveAllowed(init, target, false) || moveAllowed(init, target, true);
+        if (ras)
+            return moveAllowed(init, target, clockwiseForRASMove(init, target));
+        else
+            return moveAllowed(init, target, false) || moveAllowed(init, target, true);
     }
-    public bool pathAllowed(Vector3[] path)
+    public bool pathAllowed(bool ras, Vector3[] path)
     {
         if (path.Length == 1)
             if (configurationInCollision(path[0]))
                 return false;
         for (int i = 1; i < path.Length; i++)
         {
-            if (!moveAllowed(path[i - 1], path[i]))
+            if (!moveAllowed(ras, path[i - 1], path[i]))
                 return false;
         }
         return true;
@@ -78,12 +81,16 @@ public class OnDemandPhysics : MonoBehaviour {
 
     public bool clockwisePreferedForMove(Vector3 init, Vector3 target)
     {
-        Vector3 diff = target - init;
-        diff.z = CarController.normalizeAngle(diff.z);
-        bool result = diff.z < 180;
+        bool result = clockwiseForRASMove(init, target);
         if (!moveAllowed(init, target, result) && moveAllowed(init, target, !result))
             return !result;
         return result;
+    }
+    public bool clockwiseForRASMove(Vector3 init, Vector3 target)
+    {
+        Vector3 diff = target - init;
+        diff.z = CarController.normalizeAngle(diff.z);
+        return diff.z < 180;
     }
 
     // Update is called once per frame
