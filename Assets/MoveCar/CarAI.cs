@@ -139,7 +139,7 @@ public class CarAI : MonoBehaviour {
                     path2[path2.Length-1-i] = rev_path[i];
 
                 total_len += OptimizedJunction(path1[path1.Length-1], pt, path2[0], max_depth, opti_max_depth, out tmp_val, Mathf.Min(max_len,min_len) - total_len);
-                if (total_len >= max_len)
+                if (total_len >= Mathf.Infinity)
                     continue;
 
                 if (total_len < min_len)
@@ -231,8 +231,9 @@ public class CarAI : MonoBehaviour {
             {
                 Vector3[] devnull;
                 float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, Mathf.Min(max_len, max_cost));
-                if (tmp_len < Mathf.Infinity)
-                    tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, max_cost-tmp_len);
+                if (tmp_len >= Mathf.Infinity)
+                    return Mathf.Infinity;
+                tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, max_cost-tmp_len);
                 return tmp_len;
             };
             len = optimizePoint(p2, cost, out tmp_conf);
