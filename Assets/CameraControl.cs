@@ -44,6 +44,10 @@ public class CameraControl : MonoBehaviour {
             if (Input.GetKey(KeyCode.DownArrow))
                 this.transform.Translate(Vector3.down * velocity * Time.fixedDeltaTime);
         }
+        if (Input.GetKey(KeyCode.PageDown) || Input.GetKey(KeyCode.M))
+            this.transform.Translate(Vector3.forward * velocity * Time.fixedDeltaTime);
+        if (Input.GetKey(KeyCode.PageUp) || Input.GetKey(KeyCode.L))
+            this.transform.Translate(Vector3.back * velocity * Time.fixedDeltaTime);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             currentPos = (currentPos + 1) % 3;

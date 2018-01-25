@@ -23,7 +23,6 @@ GameObject:
   - component: {fileID: 124087834577872058}
   - component: {fileID: 81441914256146618}
   - component: {fileID: 114514005362149532}
-  - component: {fileID: 114323000386481822}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -86,19 +85,6 @@ AudioListener:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1226142933280038}
   m_Enabled: 1
---- !u!114 &114323000386481822
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1226142933280038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b5f1793614a17f44a9e50eefb651ecf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  firstCar: {fileID: 0}
-  lastCar: {fileID: 0}
 --- !u!114 &114514005362149532
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -111,6 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: 10
+  currentPos: 0
 --- !u!124 &124087834577872058
 Behaviour:
   m_ObjectHideFlags: 1
