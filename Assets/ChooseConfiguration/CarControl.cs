@@ -88,9 +88,9 @@ public class CarControl : MonoBehaviour {
             teleportToCursor();
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
-                if (Input.GetKey(KeyCode.LeftArrow))
-                    transform.Rotate(Vector3.up, angle_velocity * Time.fixedDeltaTime);
                 if (Input.GetKey(KeyCode.RightArrow))
+                    transform.Rotate(Vector3.up, angle_velocity * Time.fixedDeltaTime);
+                if (Input.GetKey(KeyCode.LeftArrow))
                     transform.Rotate(Vector3.up, -angle_velocity * Time.fixedDeltaTime);
             }
             float d = Input.GetAxis("Mouse ScrollWheel");
