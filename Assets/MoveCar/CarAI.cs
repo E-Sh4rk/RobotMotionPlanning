@@ -8,8 +8,8 @@ public class CarAI : MonoBehaviour {
     public int maxPointsMonteCarlo = 2000;
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
-    public int rasMaxDepth = 10;
-    public float rasMinCutsLength = 0.001f;
+    public int rasMaxDepth = 15;
+    public float rasMinCutsLength = 0.0001f;
     public int rasApproxDepth = 0;
 
     CarController controller;
