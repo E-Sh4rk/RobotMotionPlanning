@@ -1028,4 +1028,5 @@ MonoBehaviour:
   - {fileID: 1750889780898034}
   - {fileID: 1352160389838350}
   - {fileID: 1887758907066610}
-  radius: 5
+  allWheels: []
+  radius: 3
