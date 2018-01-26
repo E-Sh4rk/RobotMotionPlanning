@@ -1,0 +1,4 @@
+R&S : handle multiple DLL formats (dll, so, dynlib)
+Inputs: put real inputs used
+Add parameters for radius, carAI settings, etc.
+Map editor
