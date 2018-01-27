@@ -1,4 +1,6 @@
 R&S : handle multiple DLL formats (dll, so, dynlib)
+Button to quit
+Clean unused assets
 Inputs: put real inputs used
 Add parameters for radius, carAI settings, etc.
 Map editor
