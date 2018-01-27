@@ -8,6 +8,7 @@ public class CarController : MonoBehaviour {
     public GameObject[] wheels;
     public GameObject[] allWheels;
     public float radius = 5;
+    public bool useUserRadius = true;
 
     Vector3 wheelsMeanPos;
     float wheelsAngle;
@@ -19,6 +20,9 @@ public class CarController : MonoBehaviour {
         wheelsMeanPos = Vector3.zero;
         wheelsAngle = 0;
         backward = false;
+
+        if (useUserRadius)
+            radius = GUI3.radius_val;
 
         if (wheels.Length > 0)
         {

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class CarAI : MonoBehaviour {
 
-    public int maxPointsMonteCarlo = 2000;
+    public int maxPointsMonteCarlo = 2500;
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
     public int rasMaxDepth = 15;
@@ -519,24 +519,26 @@ public class CarAI : MonoBehaviour {
 
     List<Vector3> FindPath()
     {
-        // Try 1 : the manathan way
-        random_allowed_angles = new int[] { 0, 90, 180, 270 };
+        // Try 1 : full configurations space
+        random_allowed_angles = null;
         List<Vector3> path = FindPathMonteCarlo();
         if (path != null)
             return path;
-        Debug.Log("Manathan search failed.");
-        // Try 2 : intermediate way
+        Debug.Log("Full space search failed.");
+
+        // Try 2 : intermediate space
         random_allowed_angles = new int[] { 0, 45, 90, 135, 180, 225, 270, 315 };
         path = FindPathMonteCarlo();
         if (path != null)
             return path;
         Debug.Log("Intermediate search failed.");
-        // Try 3 : full configurations space
-        random_allowed_angles = null;
+
+        // Try 3 : restricted space
+        random_allowed_angles = new int[] { 0, 90, 180, 270 };
         path = FindPathMonteCarlo();
         if (path != null)
             return path;
-        Debug.Log("Full search failed.");
+        Debug.Log("Restricted space search failed.");
 
         return null;
     }

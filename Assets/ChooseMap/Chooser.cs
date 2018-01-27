@@ -18,6 +18,13 @@ public class Chooser : MonoBehaviour {
         cameraComp = (Camera)cameraObj.GetComponent(typeof(Camera));
 	}
     
+    // Call it before loading the map chooser scene
+    public static void DestroyMaps()
+    {
+        foreach (GameObject m in GameObject.FindGameObjectsWithTag("AllMap"))
+            Destroy(m);
+    }
+
     // find the maps
     GameObject findTheMap()
     {

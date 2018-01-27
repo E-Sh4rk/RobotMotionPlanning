@@ -1030,3 +1030,4 @@ MonoBehaviour:
   - {fileID: 1887758907066610}
   allWheels: []
   radius: 3
+  useUserRadius: 1
