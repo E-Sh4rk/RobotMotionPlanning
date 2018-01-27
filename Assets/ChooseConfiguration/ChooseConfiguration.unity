@@ -311,7 +311,7 @@ MonoBehaviour:
   prev: {fileID: 1250258985}
   angle_velocity: 100
   cameraObj: {fileID: 1094008104}
-  initial_color: {r: 0.97794116, g: 0.5509597, b: 0.09347964, a: 0}
+  initial_color: {r: 0.05060553, g: 0.4917461, b: 0.8602941, a: 0}
 --- !u!1 &1094008104 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1226142933280038, guid: a2575cd283b278c47baf2d24ce688595,
@@ -477,4 +477,4 @@ MonoBehaviour:
   prev: {fileID: 0}
   angle_velocity: 100
   cameraObj: {fileID: 1094008104}
-  initial_color: {r: 0.020923464, g: 0.33439043, b: 0.9485294, a: 0}
+  initial_color: {r: 1, g: 0.8482759, b: 0, a: 0}
