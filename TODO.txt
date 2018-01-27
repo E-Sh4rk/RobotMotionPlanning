@@ -1,3 +1,2 @@
 Clean unused assets
-Inputs: put real inputs used
 Map editor

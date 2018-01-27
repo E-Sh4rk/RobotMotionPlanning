@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CarControl : MonoBehaviour {
 
@@ -57,6 +58,11 @@ public class CarControl : MonoBehaviour {
             CarControl cc = (CarControl)prev.GetComponent(typeof(CarControl));
             cc.Active();
         }
+        else
+        {
+            Chooser.DestroyMaps();
+            SceneManager.LoadScene(0);
+        }
     }
 
     private void OnTriggerEnter(Collider other) { in_collision = true; }
@@ -86,15 +92,9 @@ public class CarControl : MonoBehaviour {
         if (!fix)
         {
             teleportToCursor();
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                if (Input.GetKey(KeyCode.RightArrow))
-                    transform.Rotate(Vector3.up, angle_velocity * Time.fixedDeltaTime);
-                if (Input.GetKey(KeyCode.LeftArrow))
-                    transform.Rotate(Vector3.up, -angle_velocity * Time.fixedDeltaTime);
-            }
-            float d = Input.GetAxis("Mouse ScrollWheel");
-            transform.Rotate(Vector3.up, angle_velocity * d);
+
+            transform.Rotate(Vector3.up, angle_velocity * Input.GetAxis("Car Rotation"));
+            transform.Rotate(Vector3.up, angle_velocity * Input.GetAxis("Mouse ScrollWheel"));
 
             // in_collision = GetComponent<OnDemandPhysics>().inCollisionWithObstacles();
             if (in_collision)
@@ -102,14 +102,14 @@ public class CarControl : MonoBehaviour {
             else
                 control.changeColor(Color.green);
 
-            if (!in_collision && (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)))
+            if (!in_collision && Input.GetButtonDown("Validate"))
             {
                 fix = true;
                 control.changeColor(initial_color);
                 switchToNext();
             }
         }
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetButtonDown("Cancel"))
         {
             if (fix == false)
                 switchToPrev();

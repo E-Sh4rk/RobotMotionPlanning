@@ -33,22 +33,10 @@ public class CameraControl : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (!Input.GetKey(KeyCode.LeftControl) && !Input.GetKey(KeyCode.RightControl))
-        {
-            if (Input.GetKey(KeyCode.LeftArrow))
-                this.transform.Translate(Vector3.left * velocity * Time.fixedDeltaTime);
-            if (Input.GetKey(KeyCode.RightArrow))
-                this.transform.Translate(Vector3.right * velocity * Time.fixedDeltaTime);
-            if (Input.GetKey(KeyCode.UpArrow))
-                this.transform.Translate(Vector3.up * velocity * Time.fixedDeltaTime);
-            if (Input.GetKey(KeyCode.DownArrow))
-                this.transform.Translate(Vector3.down * velocity * Time.fixedDeltaTime);
-        }
-        if (Input.GetKey(KeyCode.PageDown) || Input.GetKey(KeyCode.M))
-            this.transform.Translate(Vector3.forward * velocity * Time.fixedDeltaTime);
-        if (Input.GetKey(KeyCode.PageUp) || Input.GetKey(KeyCode.L))
-            this.transform.Translate(Vector3.back * velocity * Time.fixedDeltaTime);
-        if (Input.GetKeyDown(KeyCode.Space))
+        this.transform.Translate(Vector3.right * velocity * Input.GetAxis("Camera Horizontal"));
+        this.transform.Translate(Vector3.up * velocity * Input.GetAxis("Camera Vertical"));
+        this.transform.Translate(Vector3.forward * velocity * Input.GetAxis("Camera Zoom"));
+        if (Input.GetButtonDown("Camera View"))
         {
             currentPos = (currentPos + 1) % 3;
             goToPos();

@@ -34,9 +34,7 @@ public class Chooser : MonoBehaviour {
         GameObject map = null;
 
         if (Physics.Raycast(ray, out rh, Mathf.Infinity, layerMask))
-        {
             map = rh.transform.gameObject;
-        }
 
         return map;
     }
@@ -46,18 +44,14 @@ public class Chooser : MonoBehaviour {
     {
         Renderer[] renderers = map.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
-        {
             r.material.color = Color.green;
-        }
     }
 
     void decolorTheMap(GameObject map)
     {
         Renderer[] renderers = map.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
-        {
             r.material.color = Color.white;
-        }
     }
 
     GameObject finalMap;
@@ -75,7 +69,7 @@ public class Chooser : MonoBehaviour {
         {
             colorTheMap(map);
             
-            if(Input.GetKey(KeyCode.Return) || Input.GetMouseButtonDown(0))
+            if(Input.GetButtonDown("Validate"))
             {
                 foreach (GameObject m in GameObject.FindGameObjectsWithTag("AllMap"))
                 {
@@ -95,10 +89,5 @@ public class Chooser : MonoBehaviour {
         }
 
         oldmap = map;
-
-
-
-
-
 	}
 }

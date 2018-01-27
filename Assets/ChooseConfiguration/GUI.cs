@@ -18,14 +18,9 @@ public class GUI : MonoBehaviour {
 
     private void OnGUI()
     {
-        if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 25, 150, 25), "Back"))
-        {
-            Chooser.DestroyMaps();
-            SceneManager.LoadScene(0);
-        }
         if (lastCar.GetComponent<CarControl>().IsFixed())
         {
-             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 75, 150, 25), "Monte Carlo !"))
+             if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 25, 150, 25), "Monte Carlo !"))
              {
                 ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
@@ -33,7 +28,7 @@ public class GUI : MonoBehaviour {
 
                 SceneManager.LoadScene(2);
             }
-            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 125, 150, 25), "Reed and Shepp !"))
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 75, 150, 25), "Reed and Shepp !"))
             {
                 ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
@@ -41,7 +36,7 @@ public class GUI : MonoBehaviour {
 
                 SceneManager.LoadScene(2);
             }
-            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 175, 150, 25), "Combine both !"))
+            if (UnityEngine.GUI.Button(new Rect(Screen.width / 2 - 75, 125, 150, 25), "Combine both !"))
             {
                 ConfigInfos.initialConf = firstCar.GetComponent<CarController>().getConfiguration();
                 ConfigInfos.finalConf = lastCar.GetComponent<CarController>().getConfiguration();
