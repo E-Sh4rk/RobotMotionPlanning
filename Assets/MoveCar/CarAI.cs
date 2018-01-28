@@ -254,12 +254,12 @@ public class CarAI : MonoBehaviour {
     }
 
     delegate float CostFunc(Vector3 conf, float max_cost);
-    const float delta = 0.5f;
+    const float delta = 1f;
     const float angle_delta = 30f;
     const bool test_all_angles_in_one_iteration = true;
     const bool use_directly_small_step = false;
     const float small_delta = 0.1f;
-    const float small_angle_delta = 5f;
+    const float small_angle_delta = 3f;
     const bool small_test_all_angles_in_one_iteration = false;
     float optimizePoint(Vector3 conf, CostFunc cost, out Vector3 conf_min, bool smallStep = use_directly_small_step)
     {
