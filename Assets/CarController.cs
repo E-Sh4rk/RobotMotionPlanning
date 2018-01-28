@@ -15,7 +15,6 @@ public class CarController : MonoBehaviour {
     float wheelsAngle;
     bool backward;
 
-
     // Use this for initialization
     void Start () {
         wheelsMeanPos = Vector3.zero;
@@ -32,6 +31,8 @@ public class CarController : MonoBehaviour {
             wheelsMeanPos /= wheels.Length;
             wheelsAngle = (pivotPoint.transform.localPosition - wheelsMeanPos).magnitude;
             wheelsAngle /= 2 * radius;
+            if (wheelsAngle > 1)
+                wheelsAngle = 1;
             wheelsAngle = Mathf.Acos(wheelsAngle) * Mathf.Rad2Deg - 90;
         }
     }
@@ -138,10 +139,8 @@ public class CarController : MonoBehaviour {
         Vector3 current = getConfiguration();
 
         backward = false;
-
         Vector3 spat_diff = spatialCoordOfConfiguration(computeDiffVector(current, newConf, clockwise));
         Vector3 current_vec = Quaternion.Euler(0, current.z, 0) * Vector3.forward;
-
         if (Vector3.Dot(spat_diff, current_vec) < 0)
             backward = true;
 
@@ -179,15 +178,12 @@ public class CarController : MonoBehaviour {
             {
                 new_conf = current + diff * (Time.fixedDeltaTime / remainingTime);
 
-                float rotationVelocity = 7f;
+                float rotationVelocity = carDefaultVelocity*2;
                 if (this.backward)
                     rotationVelocity *= -1;
 
                 foreach (var w in allWheels)
-                {
                     w.transform.Rotate(Vector3.right, rotationVelocity, Space.Self);
-                }
-
             }
 
             setConfiguration(new_conf);
