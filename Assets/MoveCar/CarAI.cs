@@ -93,6 +93,11 @@ public class CarAI : MonoBehaviour {
 
     float FindRasPath(Vector3[] path, out Vector3[] save_targets)
     {
+        save_targets = null;
+        if (path.Length < 1)
+            return Mathf.Infinity;
+        if (path.Length < 2)
+            path = new Vector3[] { path[0], path[0] };
         return ComputeOptimizedRAS(path, rasMaxDepth, rasMaxDepth, out save_targets, Mathf.Infinity);
     }
     float ComputeOptimizedRAS(Vector3[] p, int max_depth, int opti_max_depth, out Vector3[] opt_path, float max_len)
@@ -187,7 +192,7 @@ public class CarAI : MonoBehaviour {
             for (int j = 1; j < tmp_val.Length; j++)
                 path.Add(tmp_val[j]);
             last = tmp_val[tmp_val.Length - 1];
-            try { middles.Add(p[i + 1], new Junction(path.Count, len)); } catch { }
+            try { middles[p[i + 1]] = new Junction(path.Count, len); } catch { }
         }
 
         return path.ToArray();
@@ -459,8 +464,10 @@ public class CarAI : MonoBehaviour {
                             linked = phy.moveAllowed(false, v, pt);
                         }
                         if (linked)
+                        {
                             Debug.DrawLine(CarController.spatialCoordOfConfiguration(v), CarController.spatialCoordOfConfiguration(pt), Color.red, 5f);
-                        dico[new Link(v, pt)] = linked ? distanceBetweenConf(v, pt) : Mathf.Infinity;
+                            dico[new Link(v, pt)] = distanceBetweenConf(v, pt);
+                        }
                     }
                     pts.Add(pt);
                     components.MakeSet(pt);
