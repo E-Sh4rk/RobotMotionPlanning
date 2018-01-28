@@ -6,12 +6,20 @@ public class CameraControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        goToPos();
+        if (!lastPos.HasValue)
+            goToPos();
+        else
+        {
+            transform.position = lastPos.Value;
+            transform.rotation = lastRot.Value;
+        }
 	}
 
     public float velocity = 10.0f;
-    public int currentPos = 0;
 
+    static int currentPos = 0;
+    static Vector3? lastPos = null;
+    static Quaternion? lastRot = null;
     public static bool headlights = true;
 
     void goToPos()
@@ -43,6 +51,8 @@ public class CameraControl : MonoBehaviour {
             currentPos = (currentPos + 1) % 3;
             goToPos();
         }
+        lastPos = transform.position;
+        lastRot = transform.rotation;
         if (Input.GetButtonDown("Headlights"))
             headlights = !headlights;
     }
