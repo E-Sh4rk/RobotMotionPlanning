@@ -38,7 +38,7 @@ public class OnDemandPhysics : MonoBehaviour {
         return Physics.CheckBox(boxCenter, boxHalfExtents, boxRotation, layerMask, QueryTriggerInteraction.Collide);
     }
 
-    public bool moveAllowed(Vector3 init, Vector3 target, bool clockwise)
+    public bool moveAllowed(Vector3 init, Vector3 target, bool clockwise, bool test_init = true)
     {
         Vector3 conf_save = control.getConfiguration();
 
@@ -46,7 +46,7 @@ public class OnDemandPhysics : MonoBehaviour {
         int nb_steps = (int)(CarController.magnitudeOfDiffVector(diff) * resolution) + 1;
 
         bool collision = false;
-        for (int i = 0; i <= nb_steps; i++)
+        for (int i = test_init?0:1; i <= nb_steps; i++)
         {
             control.setConfiguration(init + diff * ((float)i / nb_steps));
             if (currentlyInCollision())
@@ -59,12 +59,12 @@ public class OnDemandPhysics : MonoBehaviour {
         control.setConfiguration(conf_save);
         return !collision;
     }
-    public bool moveAllowed(bool ras, Vector3 init, Vector3 target)
+    public bool moveAllowed(bool ras, Vector3 init, Vector3 target, bool test_init = true)
     {
         if (ras)
-            return moveAllowed(init, target, clockwiseForRASMove(init, target));
+            return moveAllowed(init, target, clockwiseForRASMove(init, target), test_init);
         else
-            return moveAllowed(init, target, false) || moveAllowed(init, target, true);
+            return moveAllowed(init, target, false, test_init) || moveAllowed(init, target, true, test_init);
     }
     public bool pathAllowed(bool ras, Vector3[] path)
     {
@@ -73,7 +73,7 @@ public class OnDemandPhysics : MonoBehaviour {
                 return false;
         for (int i = 1; i < path.Length; i++)
         {
-            if (!moveAllowed(ras, path[i - 1], path[i]))
+            if (!moveAllowed(ras, path[i - 1], path[i], i==1))
                 return false;
         }
         return true;

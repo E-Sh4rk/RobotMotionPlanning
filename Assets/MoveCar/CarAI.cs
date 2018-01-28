@@ -8,6 +8,7 @@ public class CarAI : MonoBehaviour {
     public int maxPointsMonteCarlo = 2500;
     public int minPointsMonteCarlo = 500;
     public int maxConsecutiveRejections = 10;
+    public float rasResolution = 5;
     public int rasMaxDepth = 15;
     public float rasMinCutsLength = 0.0001f;
     public int rasApproxDepth = 0;
@@ -68,7 +69,7 @@ public class CarAI : MonoBehaviour {
         {
             rendering_ras = true;
             ReedAndShepp.ReedAndShepp.Vector3[] path;
-            ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 0.1, out path);
+            ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 1/rasResolution, out path);
             save_targets = Misc.RSPathToUnityPath(path);
             targets.AddRange(save_targets);
         }
@@ -323,7 +324,7 @@ public class CarAI : MonoBehaviour {
             return Mathf.Infinity;
         // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
-        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 0.1, out ras_path);
+        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 1/rasResolution, out ras_path);
         if (l >= max_len)
             return Mathf.Infinity;
         Vector3[] tmp_path = Misc.RSPathToUnityPath(ras_path);

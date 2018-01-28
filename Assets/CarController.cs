@@ -9,6 +9,7 @@ public class CarController : MonoBehaviour {
     public GameObject[] allWheels;
     public float radius = 5;
     public bool useUserRadius = true;
+    public float carDefaultVelocity = 4;
 
     Vector3 wheelsMeanPos;
     float wheelsAngle;
@@ -160,7 +161,7 @@ public class CarController : MonoBehaviour {
     }
     public void MoveStraigthTo(Vector3 newConf, bool clockwise)
     {
-        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(computeDiffVector(getConfiguration(), newConf, clockwise)) * 0.25f);
+        MoveStraigthTo(newConf, clockwise, magnitudeOfDiffVector(computeDiffVector(getConfiguration(), newConf, clockwise)) / carDefaultVelocity);
     }
     public bool MoveFinished()
     {
