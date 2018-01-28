@@ -7,6 +7,7 @@ public class CarController : MonoBehaviour {
     public GameObject pivotPoint;
     public GameObject[] wheels;
     public GameObject[] allWheels;
+    public GameObject[] headlights;
     public float radius = 5;
     public bool useUserRadius = true;
     public float carDefaultVelocity = 4;
@@ -195,5 +196,8 @@ public class CarController : MonoBehaviour {
             if (new_conf == target.Value)
                 target = null;
         }
+
+        foreach (GameObject hl in headlights)
+            hl.GetComponent<Light>().intensity = CameraControl.headlights ? 2 : 0;
 	}
 }

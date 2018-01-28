@@ -1028,6 +1028,12 @@ MonoBehaviour:
   - {fileID: 1750889780898034}
   - {fileID: 1352160389838350}
   - {fileID: 1887758907066610}
-  allWheels: []
+  allWheels:
+  - {fileID: 1058337858035832}
+  - {fileID: 1750889780898034}
+  - {fileID: 1197555925308562}
+  - {fileID: 1665418307116414}
+  headlights: []
   radius: 3
   useUserRadius: 1
+  carDefaultVelocity: 4

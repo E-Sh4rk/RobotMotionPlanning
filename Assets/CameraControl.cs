@@ -12,6 +12,8 @@ public class CameraControl : MonoBehaviour {
     public float velocity = 10.0f;
     public int currentPos = 0;
 
+    public static bool headlights = true;
+
     void goToPos()
     {
         switch (currentPos)
@@ -41,5 +43,7 @@ public class CameraControl : MonoBehaviour {
             currentPos = (currentPos + 1) % 3;
             goToPos();
         }
+        if (Input.GetButtonDown("Headlights"))
+            headlights = !headlights;
     }
 }

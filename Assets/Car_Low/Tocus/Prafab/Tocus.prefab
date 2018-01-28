@@ -2457,5 +2457,14 @@ MonoBehaviour:
   wheels:
   - {fileID: 1132656779480422}
   - {fileID: 1977516303058092}
-  allWheels: []
+  allWheels:
+  - {fileID: 1188388582976854}
+  - {fileID: 1977516303058092}
+  - {fileID: 1132656779480422}
+  - {fileID: 1311625568297806}
+  headlights:
+  - {fileID: 1326247112824884}
+  - {fileID: 1907358000161488}
   radius: 3
+  useUserRadius: 1
+  carDefaultVelocity: 4
