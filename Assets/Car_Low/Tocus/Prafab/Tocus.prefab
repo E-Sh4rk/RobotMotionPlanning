@@ -2465,6 +2465,6 @@ MonoBehaviour:
   headlights:
   - {fileID: 1326247112824884}
   - {fileID: 1907358000161488}
-  radius: 3
+  radius: 5
   useUserRadius: 1
   carDefaultVelocity: 4

@@ -12,6 +12,7 @@ public class CarAI : MonoBehaviour {
     public int rasMaxDepth = 15;
     public float rasMinCutsLength = 0.0001f;
     public int rasApproxDepth = 0;
+    public float rasMoveAdditionalCost = 5;
 
     CarController controller;
     OnDemandPhysics phy;
@@ -69,8 +70,8 @@ public class CarAI : MonoBehaviour {
         {
             rendering_ras = true;
             ReedAndShepp.ReedAndShepp.Vector3[] path;
-            ras.ComputeCurve(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 1/rasResolution, out path);
-            save_targets = Misc.RSPathToUnityPath(path);
+            ras.ComputeCurveWithAutoDelta2(Misc.UnityConfToRSConf(ConfigInfos.initialConf), Misc.UnityConfToRSConf(ConfigInfos.finalConf), 1/rasResolution, out path);
+            save_targets = Misc.RSPathToUnityPath(path, ConfigInfos.initialConf, ConfigInfos.finalConf);
             targets.AddRange(save_targets);
         }
         if (ConfigInfos.mode == 2)
@@ -324,16 +325,13 @@ public class CarAI : MonoBehaviour {
             return Mathf.Infinity;
         // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
-        float l = (float)ras.ComputeCurve(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 1/rasResolution, out ras_path);
+        float l = (float)ras.ComputeCurveWithAutoDelta2(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 1/rasResolution, out ras_path) + rasMoveAdditionalCost;
         if (l >= max_len)
             return Mathf.Infinity;
-        Vector3[] tmp_path = Misc.RSPathToUnityPath(ras_path);
+        Vector3[] tmp_path = Misc.RSPathToUnityPath(ras_path, init, target);
         if (phy.pathAllowed(true, tmp_path))
         {
-            if (tmp_path.Length >= 2)
-                out_path = tmp_path;
-            else
-                out_path = new Vector3[] { init, target };
+            out_path = tmp_path;
             return l;
         }
         else if (max_depth > 0)

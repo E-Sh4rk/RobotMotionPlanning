@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GUI3 : MonoBehaviour {
 
-    public static float radius_val = 3f;
+    public static float radius_val = 5f;
 
     private void OnGUI()
     {

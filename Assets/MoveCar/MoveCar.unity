@@ -245,11 +245,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: allWheels.Array.size
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 4013073016293618, guid: 02e641040fb499c49a848e40f535164a, type: 2}
       propertyPath: m_LocalPosition.x
       value: 6.011245
@@ -282,49 +277,9 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: allWheels.Array.data[0]
-      value: 
-      objectReference: {fileID: 591580973}
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: allWheels.Array.data[1]
-      value: 
-      objectReference: {fileID: 591580974}
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: allWheels.Array.data[2]
-      value: 
-      objectReference: {fileID: 591580972}
-    - target: {fileID: 114823403171551526, guid: 02e641040fb499c49a848e40f535164a,
-        type: 2}
-      propertyPath: allWheels.Array.data[3]
-      value: 
-      objectReference: {fileID: 591580975}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02e641040fb499c49a848e40f535164a, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &591580972 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1311625568297806, guid: 02e641040fb499c49a848e40f535164a,
-    type: 2}
-  m_PrefabInternal: {fileID: 591580971}
---- !u!1 &591580973 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1188388582976854, guid: 02e641040fb499c49a848e40f535164a,
-    type: 2}
-  m_PrefabInternal: {fileID: 591580971}
---- !u!1 &591580974 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1977516303058092, guid: 02e641040fb499c49a848e40f535164a,
-    type: 2}
-  m_PrefabInternal: {fileID: 591580971}
---- !u!1 &591580975 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1132656779480422, guid: 02e641040fb499c49a848e40f535164a,
-    type: 2}
-  m_PrefabInternal: {fileID: 591580971}
 --- !u!1 &896665581 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1610265466720824, guid: 02e641040fb499c49a848e40f535164a,
@@ -348,6 +303,7 @@ MonoBehaviour:
   rasMaxDepth: 15
   rasMinCutsLength: 0.0001
   rasApproxDepth: 0
+  rasMoveAdditionalCost: 5
 --- !u!1 &1974705410 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1226142933280038, guid: a2575cd283b278c47baf2d24ce688595,
