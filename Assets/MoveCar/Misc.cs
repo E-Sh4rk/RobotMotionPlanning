@@ -15,7 +15,7 @@ public class Misc {
     public static Vector3[] RSPathToUnityPath(ReedAndShepp.ReedAndShepp.Vector3[] v, Vector3 init, Vector3 target)
     {
         if (v.Length == 0)
-            return new Vector3[] { };
+            return new Vector3[] { init, target };
         List<Vector3> p = new List<Vector3>();
         for (int i = 0; i < v.Length; i++)
             p.Add(RSConfToUnityConf(v[i]));
