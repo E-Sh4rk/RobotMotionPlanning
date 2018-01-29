@@ -48,8 +48,8 @@ NOTE 2 : Si le calcul des courbes de Reed&Shepp ne fonctionne pas (aucun déplac
 
 ## Installation sur Linux
 
-Il suffit de lancer RMP._x86_64.
+Il suffit de lancer rmp._x86_64.
 
 ## Installation sur Windows
 
-Il suffit de lancer RMP.exe.
+Il suffit de lancer rmp.exe.
