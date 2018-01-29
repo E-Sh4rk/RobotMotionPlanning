@@ -6,11 +6,11 @@ Mickaël Laurent et Mathis Petrovich
 
 ## Le projet
 
-Ce projet est le calcul et la simulation du déplacement d'une voiture. On utilise un algorithme Monte-Carlo suivi d'un cacul des courbes Reed&Sheep. 
+Ce projet est le calcul et la simulation du déplacement d'une voiture. On utilise un algorithme Monte-Carlo suivi d'un calcul des courbes Reed&Sheep. 
 
 ## Utilisation
 
-A démarrage du programme, il y a deux onglets :
+Au démarrage du programme, il y a deux onglets :
 - Paramétrage de la résolution d'écran
 - Paramétrage des touches du clavier pour l'utilisation
 
@@ -40,7 +40,7 @@ cd ~/Downloads/RMP_Mac/
 cp ReedAndShepp64.dylib ReedAndShepp.dylib /usr/local/lib
 ```
 
-Il suffit ensuite de lancer RMP.app.
+Il suffit ensuite de lancer rmp.app.
 
 NOTE 1 : Si les paramètres de sécurité vous empêchent de lancer l'application, vous pouvez suivre ces instructions : https://support.apple.com/kb/PH25088?viewlocale=fr_FR&locale=en_US.
 
