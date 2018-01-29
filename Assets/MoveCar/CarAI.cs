@@ -240,7 +240,7 @@ public class CarAI : MonoBehaviour {
             CostFunc cost = (Vector3 v, float max_cost) =>
             {
                 Vector3[] devnull;
-                float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, Mathf.Min(max_len, max_cost));
+                float tmp_len = RASofLine(p1, v, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, max_cost);
                 if (tmp_len >= Mathf.Infinity)
                     return Mathf.Infinity;
                 tmp_len += RASofLine(v, p3, max_depth, Mathf.Min(rasApproxDepth, opti_max_depth-1), out devnull, max_cost-tmp_len);
