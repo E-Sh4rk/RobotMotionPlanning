@@ -6,7 +6,7 @@ Mickaël Laurent et Mathis Petrovich
 
 ## Le projet
 
-Ce projet est le calcul et la simulation du déplacement d'une voiture. On utilise un algorithme Monte-Carlo suivi d'un calcul des courbes Reed&Sheep. 
+Ce projet est le calcul et la simulation du déplacement d'une voiture. On utilise un algorithme Monte-Carlo suivi d'un calcul des courbes Reed&Shepp. 
 
 ## Utilisation
 
