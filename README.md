@@ -16,13 +16,13 @@ A démarrage du programme, il y a deux onglets :
 
 Dans le menu de chargement de cartes, on peut changer le rayon de braquage de la voiture. La sélection de la carte se fait avec la souris.
 
-Lorsqu'une carte est chargé, on sélectionne à la souris l'endroit où on veut placer la voiture au départ puis la position d'arrivé.
+Lorsqu'une carte est chargé, on sélectionne à la souris l'endroit où on veut placer la voiture au départ puis la position d'arrivée.
 On peut faire un clic droit pour revenir au choix précédent.
 
-On choisi alors si on veux regarder :
+On choisi alors si on veut regarder :
 
-- La trajectoire de Monte-Carlo (ce n'est pas une trajectoire de voiture, mais c'est sans collisions)
-- La trajectoire Reed&Shepp (trajectoire de voiture mais avec collision)
+- La trajectoire de Monte-Carlo (ce n'est pas une trajectoire de voiture, mais c'est sans collision)
+- La trajectoire Reed&Shepp (trajectoire de voiture mais avec collisions possibles)
 - La trajectoire qui combine les deux (trajectoire de voiture sans collision)
 
 ## Compilation
