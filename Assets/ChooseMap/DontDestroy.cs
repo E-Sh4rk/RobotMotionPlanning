@@ -11,12 +11,6 @@ public class DontDestroy : MonoBehaviour {
         DontDestroyOnLoad(transform.gameObject);
     }
 
-    public GameObject getGround()
-    {
-        Debug.Log("test");
-        return Ground;
-    }
-
     private void Start()
     {
         

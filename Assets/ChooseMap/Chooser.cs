@@ -69,7 +69,7 @@ public class Chooser : MonoBehaviour {
         {
             colorTheMap(map);
             
-            if(Input.GetButtonDown("Validate"))
+            if(Input.GetButtonDown("Validate") && !GUI3.CursorIsOnGUI())
             {
                 foreach (GameObject m in GameObject.FindGameObjectsWithTag("AllMap"))
                 {
@@ -77,9 +77,7 @@ public class Chooser : MonoBehaviour {
                     if (g.Ground != map)
                         Destroy(m);
                     else
-                    {
                         finalMap = m;
-                    }
                 }
                 decolorTheMap(map);
                 finalMap.transform.position = new Vector3(0,-0.75f,0);
