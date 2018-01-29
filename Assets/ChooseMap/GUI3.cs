@@ -16,6 +16,13 @@ public class GUI3 : MonoBehaviour {
         }
     }
 
+    public static bool CursorIsOnGUI()
+    {
+        Vector2 coord = GUIUtility.ScreenToGUIPoint(Input.mousePosition);
+        coord.y = Screen.height - coord.y;
+        return new Rect(Screen.width / 2 - 75, 25, 150, 50).Contains(coord);
+    }
+
     // Use this for initialization
     void Start()
     {
