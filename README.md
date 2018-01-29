@@ -42,6 +42,10 @@ cp ReedAndShepp64.dylib ReedAndShepp.dylib /usr/local/lib
 
 Il suffit ensuite de lancer RMP.app.
 
+NOTE 1 : Si les paramètres de sécurité vous empêchent de lancer l'application, vous pouvez suivre ces instructions : https://support.apple.com/kb/PH25088?viewlocale=fr_FR&locale=en_US.
+
+NOTE 2 : Si le calcul des courbes de Reed&Shepp ne fonctionne pas (aucun déplacement de la voiture), veuillez vérifier que vous avez bien copié les deux fichiers dylib dans /usr/local/lib comme indiqué précedemment.
+
 ## Installation sur Linux
 
 Il suffit de lancer RMP._x86_64.
