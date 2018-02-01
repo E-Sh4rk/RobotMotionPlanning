@@ -79,12 +79,14 @@ public class OnDemandPhysics : MonoBehaviour {
         return true;
     }
 
-    public bool clockwisePreferedForMove(Vector3 init, Vector3 target)
+    public bool? preferedAllowedClockwiseForMove(Vector3 init, Vector3 target)
     {
         bool result = clockwiseForRASMove(init, target);
-        if (!moveAllowed(init, target, result) && moveAllowed(init, target, !result))
+        if (moveAllowed(init, target, result))
+            return result;
+        if (moveAllowed(init, target, !result))
             return !result;
-        return result;
+        return null;
     }
     public bool clockwiseForRASMove(Vector3 init, Vector3 target)
     {

@@ -320,9 +320,6 @@ public class CarAI : MonoBehaviour {
     float RASofLine(Vector3 init, Vector3 target, int max_depth, int opti_max_depth, out Vector3[] out_path, float max_len)
     {
         out_path = null;
-        bool clockwise = phy.clockwisePreferedForMove(init, target);
-        if (!phy.moveAllowed(init, target, clockwise))
-            return Mathf.Infinity;
         // We try a r&s trajectory from init to target. If it is not an allowed path, we split the segment in two parts and compute r&s recursively on it.
         ReedAndShepp.ReedAndShepp.Vector3[] ras_path;
         float l = (float)ras.ComputeCurveWithAutoDelta2(Misc.UnityConfToRSConf(init), Misc.UnityConfToRSConf(target), 1/rasResolution, out ras_path) + rasMoveAdditionalCost;
@@ -336,17 +333,20 @@ public class CarAI : MonoBehaviour {
         }
         else if (max_depth > 0)
         {
-            Vector3[] path = CutPath(new Vector3[] { init, target }, nb_cuts_recursive, rasMinCutsLength, new bool[] { clockwise });
-            if (path.Length > 2)
-                return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth, out out_path, max_len);
-            else
-                return Mathf.Infinity;
+            bool? clockwise = phy.preferedAllowedClockwiseForMove(init, target);
+            if (clockwise.HasValue) // We continue only if the initial line is valid (no collision)!
+            {
+                Vector3[] path = CutPath(new Vector3[] { init, target }, nb_cuts_recursive, rasMinCutsLength, new bool[] { clockwise.Value });
+                if (path.Length > 2)
+                    return ComputeOptimizedRAS(path, max_depth - 1, opti_max_depth, out out_path, max_len);
+                else
+                    return Mathf.Infinity;
+            }
         }
-        else
-            return Mathf.Infinity;
+        return Mathf.Infinity;
     }
 
-    Vector3[] CutPath(Vector3[] p, int nb_cuts, float min_cut_length, bool[] clockwise = null /* Just for opti, to avoid recomputing it if we already have it */)
+    Vector3[] CutPath(Vector3[] p, int nb_cuts, float min_cut_length, bool[] clockwise)
     {
         if (nb_cuts < 1) return null;
 
@@ -354,7 +354,7 @@ public class CarAI : MonoBehaviour {
         new_p.Add(p[0]);
         for (int i = 0; i < p.Length-1; i++)
         {
-            bool cw = clockwise != null ? clockwise[i] : phy.clockwisePreferedForMove(p[i], p[i+1]);
+            bool cw = clockwise[i];
             Vector3 diff = CarController.computeDiffVector(p[i], p[i + 1], cw);
             if (CarController.magnitudeOfDiffVector(diff) / (nb_cuts + 1) >= min_cut_length)
             {
@@ -392,7 +392,10 @@ public class CarAI : MonoBehaviour {
     
     float distanceBetweenConf(Vector3 v1, Vector3 v2)
     {
-        return CarController.magnitudeOfDiffVector(CarController.computeDiffVector(v1, v2, phy.clockwisePreferedForMove(v1, v2)));
+        bool? cw = phy.preferedAllowedClockwiseForMove(v1, v2);
+        if (!cw.HasValue)
+            return Mathf.Infinity;
+        return CarController.magnitudeOfDiffVector(CarController.computeDiffVector(v1, v2, cw.Value));
     }
     List<Vector3> FindPathMonteCarlo()
     {
@@ -585,12 +588,12 @@ public class CarAI : MonoBehaviour {
         {
             if (targets.Count > 0)
             {
-                bool clockwise;
-                if (rendering_ras)
+                bool? clockwise = null;
+                if (!rendering_ras)
+                    clockwise = phy.preferedAllowedClockwiseForMove(controller.getConfiguration(), targets[0]);
+                if (!clockwise.HasValue)
                     clockwise = phy.clockwiseForRASMove(controller.getConfiguration(), targets[0]);
-                else
-                    clockwise = phy.clockwisePreferedForMove(controller.getConfiguration(), targets[0]);
-                controller.MoveStraigthTo(targets[0], clockwise);
+                controller.MoveStraigthTo(targets[0], clockwise.Value);
                 targets.RemoveAt(0);
             }
             else
